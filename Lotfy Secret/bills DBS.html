@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>مستخرج عملاء المبيعات - فواتير الوردية</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', 'Cairo', 'Tahoma', sans-serif;
+            background: #eef2f7;
+            margin: 0;
+            padding: 30px 20px;
+            direction: rtl;
+        }
+        .main-card {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 32px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #1e4663 0%, #143240 100%);
+            padding: 20px 30px;
+            color: white;
+        }
+        .header h1 {
+            margin: 0 0 6px 0;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        .header p {
+            margin: 0;
+            opacity: 0.85;
+            font-size: 0.9rem;
+        }
+        .content-pane {
+            padding: 25px 30px;
+        }
+        .paste-area {
+            margin-bottom: 28px;
+        }
+        .paste-area label {
+            font-weight: 700;
+            color: #1e4663;
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        textarea {
+            width: 100%;
+            height: 320px;
+            padding: 15px;
+            font-family: 'Courier New', 'Cairo', monospace;
+            font-size: 13px;
+            border: 2px solid #dce5ec;
+            border-radius: 20px;
+            background: #fefef7;
+            direction: ltr;
+            resize: vertical;
+            transition: 0.2s;
+        }
+        textarea:focus {
+            border-color: #e46f00;
+            outline: none;
+            background: #fffdf8;
+        }
+        .action-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0 25px;
+        }
+        .btn {
+            border: none;
+            padding: 10px 28px;
+            border-radius: 60px;
+            font-weight: bold;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #eef2f7;
+            color: #1e4663;
+        }
+        .btn-primary {
+            background: #e46f00;
+            color: white;
+            box-shadow: 0 3px 8px rgba(228,111,0,0.2);
+        }
+        .btn-primary:hover {
+            background: #c55e00;
+            transform: scale(1.01);
+        }
+        .btn-outline {
+            border: 1px solid #bdc4cc;
+            background: white;
+        }
+        .btn-outline:hover {
+            background: #f0f4f9;
+        }
+        .stats {
+            background: #f8fafd;
+            border-radius: 60px;
+            padding: 8px 20px;
+            font-size: 0.85rem;
+            color: #2c6979;
+        }
+        .stats strong {
+            color: #e46f00;
+            font-size: 1.1rem;
+        }
+        .result-table-wrapper {
+            overflow-x: auto;
+            border-radius: 20px;
+            border: 1px solid #e2edf2;
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+        th {
+            background: #275a6f;
+            color: white;
+            padding: 12px 8px;
+            border: 1px solid #3e7a8f;
+            text-align: center;
+        }
+        td {
+            border: 1px solid #d4dee5;
+            padding: 10px 6px;
+            text-align: center;
+            background-color: #fff;
+        }
+        .badge-sales {
+            background: #dff0e2;
+            color: #1f6d2f;
+            border-radius: 30px;
+            padding: 2px 12px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+        .empty-row td {
+            text-align: center;
+            padding: 40px;
+            color: #a0b3c9;
+        }
+        .footer-note {
+            margin-top: 25px;
+            font-size: 0.75rem;
+            color: #6c7a89;
+            text-align: center;
+            border-top: 1px solid #e2edf2;
+            padding-top: 18px;
+        }
+        @media (max-width: 700px) {
+            .content-pane { padding: 18px; }
+            .btn { padding: 6px 18px; font-size: 0.8rem; }
+            th, td { font-size: 0.7rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="main-card">
+    <div class="header">
+        <h1>📋 مستخرج عملاء المبيعات (فواتير الوردية)</h1>
+        <p>قم بلصق كود HTML الذي يحتوي على جدول <strong>طلبات الوردية</strong> — سيتم استخراج العملاء حيث نوع الطلب = "مبيعات" مع إمكانية تحميل ملف Excel</p>
+    </div>
+    <div class="content-pane">
+        <div class="paste-area">
+            <label>📌 الصق كود HTML الكامل (الجدول الداخلي productTable أو أي جدول يحتوي على الأعمدة المطلوبة)</label>
+            <textarea id="htmlInput" placeholder="ألصق هنا كود HTML الذي يحتوي على جدول طلبات الوردية ... مثال: &lt;table id=&quot;productTable&quot;&gt; ... &lt;/table&gt;"></textarea>
+        </div>
+        <div class="action-bar">
+            <div>
+                <button id="extractBtn" class="btn btn-primary">🔍 استخراج العملاء (مبيعات)</button>
+                <button id="downloadExcelBtn" class="btn btn-outline" style="margin-right:12px;">📎 تحميل ملف Excel</button>
+                <button id="clearBtn" class="btn btn-outline">🗑️ مسح النص</button>
+            </div>
+            <div class="stats" id="statsArea">
+                📊 الانتظار ... 
+            </div>
+        </div>
+        <div class="result-table-wrapper">
+            <table id="resultTable">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>رقم الفاتورة</th>
+                        <th>العميل</th>
+                        <th>التكلفة بعد الخصم</th>
+                        <th>نوع الطلب</th>
+                    </tr>
+                </thead>
+                <tbody id="resultTbody">
+                    <tr class="empty-row"><td colspan="5">💡 لم يتم استخراج بيانات بعد. قم بلصق HTML ثم اضغط "استخراج العملاء"</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="footer-note">
+            ⚡ يتم البحث داخل النص عن الجدول الذي يحوي صفوف الطلبات (id="productTable" أو أي جدول مشابه).<br>
+            يعتمد الاستخراج على وجود أعمدة: رقم الفاتورة، نوع الطلب، العميل، التكلفة. يتم تصفية الصفوف التي تحتوي على نص "مبيعات" في حقل نوع الطلب.
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+<script>
+    (function() {
+        // عناصر DOM
+        const htmlInput = document.getElementById('htmlInput');
+        const extractBtn = document.getElementById('extractBtn');
+        const downloadBtn = document.getElementById('downloadExcelBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const statsArea = document.getElementById('statsArea');
+        const resultTbody = document.getElementById('resultTbody');
+        
+        let extractedData = [];   // تخزين البيانات المستخرجة [{ invoiceNumber, customerName, costAfterDiscount, orderType }]
+        
+        // دالة مساعدة لعرض البيانات في الجدول المرئي
+        function renderResultTable(data) {
+            if (!resultTbody) return;
+            if (!data || data.length === 0) {
+                resultTbody.innerHTML = '<tr class="empty-row"><td colspan="5">⚠️ لا توجد فواتير من نوع "مبيعات" في النص الملصق. تأكد من احتواء HTML على جدول الطلبات وأن هناك صفوفاً نوعها "مبيعات".</td></tr>';
+                statsArea.innerHTML = `📌 تم العثور على <strong>0</strong> فاتورة مبيعات`;
+                return;
+            }
+            let htmlRows = '';
+            data.forEach((item, idx) => {
+                htmlRows += `<tr>
+                                <td>${idx+1}</td>
+                                <td>${escapeHtml(item.invoiceNumber) || '—'}</td>
+                                <td style="text-align:right; font-weight:500;">${escapeHtml(item.customerName) || 'غير مسجل'}</td>
+                                <td>${escapeHtml(item.costAfterDiscount) || '0'}</td>
+                                <td><span class="badge-sales">مبيعات</span></td>
+                             </tr>`;
+            });
+            resultTbody.innerHTML = htmlRows;
+            statsArea.innerHTML = `📌 تم العثور على <strong>${data.length}</strong> فاتورة مبيعات (عميل لكل فاتورة)`;
+        }
+        
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+        
+        // دالة الاستخراج الأساسية: تعمل على النص HTML الملصق (كامل الصفحة أو جزء من الجدول)
+        function extractSalesFromHtml(htmlString) {
+            // إنشاء عنصر div مؤقت لاستخراج DOM من النص الملصق
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlString, 'text/html');
+            
+            // البحث عن الجدول الذي يحتوي على بيانات الطلبات - الأكثر شيوعاً id="productTable"
+            let targetTable = doc.getElementById('productTable');
+            // إذا لم يوجد، نحاول البحث عن أي جدول يحتوي على العناوين المناسبة (رقم الفاتورة، نوع الطلب، العميل)
+            if (!targetTable) {
+                // محاولة مرنة: نبحث عن أول جدول يحتوي على صفوف thead تحتوي على "رقم الفاتورة" أو "نوع الطلب"
+                const allTables = doc.querySelectorAll('table');
+                for (let tbl of allTables) {
+                    const headers = Array.from(tbl.querySelectorAll('th')).map(th => th.innerText.trim());
+                    if (headers.some(h => h.includes('رقم الفاتورة') || h.includes('نوع الطلب') || h.includes('العميل'))) {
+                        targetTable = tbl;
+                        break;
+                    }
+                }
+            }
+            if (!targetTable) {
+                console.warn("لم يتم العثور على جدول الطلبات في النص الملصق.");
+                return [];
+            }
+            
+            const tbody = targetTable.querySelector('tbody');
+            if (!tbody) {
+                // قد يكون الجدول بدون tbody (الصفوف مباشرة داخل الجدول)
+                // نأخذ الصفوف المباشرة التي تحتوي على td
+                const rows = targetTable.querySelectorAll('tr');
+                return parseRows(rows);
+            }
+            const rows = tbody.querySelectorAll('tr');
+            return parseRows(rows);
+            
+            function parseRows(rowsNodeList) {
+                const salesList = [];
+                for (let row of rowsNodeList) {
+                    const cells = row.querySelectorAll('td');
+                    if (cells.length < 3) continue; // نحتاج على الأقل 3 أعمدة أساسية
+                    
+                    // تحديد رقم الفاتورة: عادة في أول خلية، وبداخلها span OrderIDLBL أو نص
+                    let invoiceNumber = '';
+                    const firstCell = cells[0];
+                    const orderIdSpan = firstCell.querySelector('span[id*="OrderIDLBL"]');
+                    if (orderIdSpan) invoiceNumber = orderIdSpan.innerText.trim();
+                    else invoiceNumber = firstCell.innerText.trim();
+                    
+                    // تحديد نوع الطلب: عادة الخلية الثالثة (index 2) لأن الترتيب: رقم الفاتورة، موظف مبيعات، نوع الطلب، العميل ...
+                    let orderType = '';
+                    const thirdCell = cells[2];
+                    const typeSpan = thirdCell.querySelector('span[id*="Label9"]');
+                    if (typeSpan) orderType = typeSpan.innerText.trim();
+                    else orderType = thirdCell.innerText.trim();
+                    
+                    // العميل: الخلية الرابعة (index 3)
+                    let customerName = '';
+                    const fourthCell = cells[3];
+                    const customerSpan = fourthCell.querySelector('span[id*="Label2"]');
+                    if (customerSpan) customerName = customerSpan.innerText.trim();
+                    else customerName = fourthCell.innerText.trim();
+                    
+                    // التكلفة بعد الخصم: الخلية الخامسة (index 4)
+                    let cost = '';
+                    const fifthCell = cells[4];
+                    const costSpan = fifthCell.querySelector('span[id*="Label3"]');
+                    if (costSpan) cost = costSpan.innerText.trim();
+                    else cost = fifthCell.innerText.trim();
+                    
+                    // التحقق من أن نوع الطلب يساوي "مبيعات" (مطابقة تامة)
+                    if (orderType === 'مبيعات') {
+                        salesList.push({
+                            invoiceNumber: invoiceNumber || '—',
+                            customerName: customerName || 'غير محدد',
+                            costAfterDiscount: cost || '0',
+                            orderType: 'مبيعات'
+                        });
+                    }
+                }
+                return salesList;
+            }
+        }
+        
+        // دالة لتوليد ملف Excel باستخدام SheetJS
+        async function exportToExcel(dataArray, fileNamePrefix = 'اكسل_فواتير') {
+            if (!dataArray || dataArray.length === 0) {
+                alert("⚠️ لا توجد بيانات للتصدير. يرجى استخراج البيانات أولاً (تأكد من وجود فواتير مبيعات).");
+                return false;
+            }
+            try {
+                // التأكد من وجود XLSX
+                if (typeof XLSX === 'undefined') {
+                    alert("مكتبة Excel لم تحمل بعد، حاول إعادة تحميل الصفحة أو الاتصال بالإنترنت.");
+                    return false;
+                }
+                // تاريخ اليوم بتنسيق YYYY-MM-DD
+                const today = new Date();
+                const yyyy = today.getFullYear();
+                const mm = String(today.getMonth() + 1).padStart(2, '0');
+                const dd = String(today.getDate()).padStart(2, '0');
+                const dateStr = `${yyyy}-${mm}-${dd}`;
+                const fileName = `${fileNamePrefix}_${dateStr}.xlsx`;
+                
+                // إعداد بيانات الورقة: عنوان + تفاصيل
+                const sheetData = [
+                    ["رقم الفاتورة", "اسم العميل", "التكلفة بعد الخصم", "نوع الطلب", "تاريخ التصدير"],
+                ];
+                for (let item of dataArray) {
+                    sheetData.push([
+                        item.invoiceNumber,
+                        item.customerName,
+                        item.costAfterDiscount,
+                        "مبيعات",
+                        dateStr
+                    ]);
+                }
+                sheetData.push([], ["إجمالي عدد الفواتير", dataArray.length, "", "", ""]);
+                
+                const ws = XLSX.utils.aoa_to_sheet(sheetData);
+                ws['!cols'] = [{wch:15},{wch:38},{wch:18},{wch:12},{wch:18}];
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "عملاء_المبيعات");
+                XLSX.writeFile(wb, fileName);
+                return true;
+            } catch(err) {
+                console.error(err);
+                alert("حدث خطأ أثناء إنشاء ملف Excel: " + err.message);
+                return false;
+            }
+        }
+        
+        // زر الاستخراج
+        extractBtn.addEventListener('click', () => {
+            const rawHtml = htmlInput.value.trim();
+            if (!rawHtml) {
+                alert("الرجاء لصق كود HTML الذي يحتوي على جدول طلبات الوردية أولاً.");
+                return;
+            }
+            // إظهار حالة تحميل
+            statsArea.innerHTML = `⏳ جاري تحليل النص ...`;
+            resultTbody.innerHTML = '<tr class="empty-row"><td colspan="5">⏳ جاري استخراج البيانات من الكود الملصق ...</td></tr>';
+            
+            // تأخير بسيط لتجنب تجميد الواجهة
+            setTimeout(() => {
+                try {
+                    const salesData = extractSalesFromHtml(rawHtml);
+                    extractedData = salesData; // حفظ للتصدير لاحقاً
+                    renderResultTable(extractedData);
+                    if (extractedData.length === 0) {
+                        statsArea.innerHTML = `⚠️ لم يتم العثور على فواتير مبيعات. تأكد من وجود صفوف بنوع طلب "مبيعات" في الجدول.`;
+                    } else {
+                        statsArea.innerHTML = `✅ تم الاستخراج بنجاح: <strong>${extractedData.length}</strong> فاتورة مبيعات`;
+                    }
+                } catch (err) {
+                    console.error(err);
+                    statsArea.innerHTML = `❌ خطأ في التحليل: تأكد من صحة HTML`;
+                    resultTbody.innerHTML = '<tr class="empty-row"><td colspan="5">❌ فشل تحليل HTML. تأكد من أن الكود يحتوي على هيكل جدول صحيح.</td></tr>';
+                    extractedData = [];
+                }
+            }, 20);
+        });
+        
+        // زر تحميل Excel
+        downloadBtn.addEventListener('click', async () => {
+            if (!extractedData || extractedData.length === 0) {
+                alert("لا توجد بيانات مستخرجة. قم أولاً بلصق HTML والضغط على 'استخراج العملاء'.");
+                return;
+            }
+            await exportToExcel(extractedData, 'اكسل_فواتير');
+        });
+        
+        // زر مسح
+        clearBtn.addEventListener('click', () => {
+            htmlInput.value = '';
+            extractedData = [];
+            resultTbody.innerHTML = '<tr class="empty-row"><td colspan="5">📋 تم مسح النص. الصق كود HTML جديد ثم اضغط استخراج.</td></tr>';
+            statsArea.innerHTML = `📊 في انتظار لصق الكود ...`;
+        });
+        
+        // إضافة مثال توضيحي افتراضي لمساعدة المستخدم (اختياري) – يمكن وضع نص نموذج قصير لكن لا نملأ تلقائياً لتفادي الحذف
+        // فقط نعرض تلميح في textarea
+        htmlInput.placeholder = `مثال: قم بلصق كود HTML الكامل الذي يحتوي على الجدول...\n\nيجب أن يحتوي الجدول على أعمدة مثل: رقم الفاتورة | نوع الطلب | العميل | التكلفة بعد الخصم.\n\nوسيتم استخراج الصفوف التي تحتوي على "مبيعات" في عمود نوع الطلب.`;
+        
+        // دالة مساعدة لتغذية مثال تجريبي سريع (عند النقر المزدوج على التلميح؟ لا, نضيف زر تجريبي بسيط اختياري - لكن من أجل الرفاهية نضيف رسالة)
+        console.log("جاهز - الصق كود HTML الخاص بجدول طلبات الوردية");
+    })();
+</script>
+</body>
+</html>
