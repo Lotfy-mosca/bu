@@ -1,0 +1,1125 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Interactive PDF Editor</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 10px;
+            background-color: #f5f5f5;
+            touch-action: manipulation;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 5px;
+        }
+        
+        h1 {
+            font-size: clamp(1.5rem, 4vw, 2rem);
+            margin: 0 0 10px 0;
+            text-align: center;
+        }
+        
+        .copyright {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 14px;
+            color: #666;
+            z-index: 1000;
+            background-color: rgba(255,255,255,0.8);
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+        
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .toolbar-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+        
+        .btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            background-color: #4a6fa5;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+            white-space: nowrap;
+        }
+        
+        .btn:hover {
+            background-color: #3a5a8f;
+        }
+        
+        .btn.active {
+            background-color: #2c4a7f;
+        }
+        
+        .color-picker {
+            width: 35px;
+            height: 35px;
+            padding: 0;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        select, input[type="range"] {
+            padding: 6px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            max-width: 100%;
+        }
+        
+        .pdf-page {
+            position: relative;
+            width: 100%;
+            min-height: 600px;
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
+            overflow: hidden;
+            touch-action: none;
+        }
+        
+        .pdf-page.a4 {
+            aspect-ratio: 1 / 1.4142;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .editable-text {
+            position: absolute;
+            min-width: 50px;
+            min-height: 20px;
+            padding: 5px;
+            outline: 1px dashed #ccc;
+            cursor: move;
+            user-select: none;
+            touch-action: none;
+            overflow: hidden;
+        }
+        
+        .editable-text.active {
+            outline: 2px solid #4a6fa5;
+            z-index: 10;
+        }
+        
+        .editable-text.editing {
+            outline: 2px solid #44aa44;
+            cursor: text;
+            user-select: auto;
+        }
+        
+        .editable-image {
+            position: absolute;
+            max-width: 300px;
+            max-height: 300px;
+            outline: 1px dashed #ccc;
+            cursor: move;
+            touch-action: none;
+            transition: transform 0.2s;
+        }
+        
+        .editable-math {
+            position: absolute;
+            min-width: 50px;
+            min-height: 20px;
+            padding: 5px;
+            outline: 1px dashed #ccc;
+            cursor: move;
+            user-select: none;
+            touch-action: none;
+            font-size: 18px;
+        }
+        
+        .editable-math.active {
+            outline: 2px solid #4a6fa5;
+            z-index: 10;
+        }
+        
+        .editable-image.active {
+            outline: 2px solid #4a6fa5;
+            z-index: 10;
+        }
+        
+        .resize-handle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #4a6fa5;
+            right: -5px;
+            bottom: -5px;
+            cursor: nwse-resize;
+        }
+        
+        .delete-btn {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 20px;
+            height: 20px;
+            background-color: #ff4444;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            z-index: 11;
+        }
+        
+        .edit-btn {
+            position: absolute;
+            top: -10px;
+            right: 15px;
+            width: 20px;
+            height: 20px;
+            background-color: #44aa44;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            z-index: 11;
+        }
+        
+        .image-controls {
+            display: none;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+            background-color: #f0f0f0;
+            padding: 8px;
+            border-radius: 4px;
+            margin-top: 8px;
+            width: 100%;
+        }
+        
+        .image-controls.active {
+            display: flex;
+        }
+        
+        .image-size-label {
+            font-size: 14px;
+            white-space: nowrap;
+        }
+        
+        .mathml-dialog {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            z-index: 100;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .mathml-dialog textarea {
+            width: 100%;
+            min-height: 100px;
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        
+        .mathml-dialog-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        .mathml-dialog-buttons button {
+            padding: 8px 15px;
+        }
+        
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 99;
+        }
+        
+        @media (max-width: 768px) {
+            .toolbar {
+                gap: 6px;
+                padding: 8px;
+            }
+            
+            .toolbar-group {
+                gap: 6px;
+            }
+            
+            .btn {
+                padding: 5px 8px;
+                font-size: 13px;
+            }
+            
+            .pdf-page {
+                min-height: 400px;
+            }
+            
+            .image-controls {
+                flex-direction: row;
+                align-items: center;
+            }
+            
+            select, input[type="range"] {
+                padding: 5px;
+                font-size: 13px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 5px;
+            }
+            
+            .toolbar {
+                flex-direction: column;
+            }
+            
+            .toolbar-group {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .image-controls {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .copyright {
+                top: 5px;
+                right: 5px;
+                font-size: 12px;
+            }
+        }
+
+          /* Add this new style for the PDF-only copyright */
+          .pdf-copyright {
+          /*  display: none;*/
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 18px;
+            color: #333;
+            font-weight: 800;
+            font-style: italic;
+            z-index: 1000;
+            background-color:orange;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    
+    
+    <div class="container">
+        <h1>Interactive PDF Editor</h1>
+        
+        <div class="toolbar">
+            <div class="toolbar-group">
+                <button id="addTextBtn" class="btn">Add Text</button>
+                <button id="addImageBtn" class="btn">Add Image</button>
+                <button id="addMathBtn" class="btn">Add Math</button>
+                <button id="downloadBtn" class="btn">Download PDF</button>
+            </div>
+            
+            <div class="toolbar-group">
+                <label for="fontSize">Text Size:</label>
+                <input type="range" id="fontSize" min="8" max="72" value="16">
+                <span id="fontSizeValue">16</span>
+            </div>
+            
+            <div class="toolbar-group">
+                <select id="fontFamily">
+                    <option value="Arial">Arial</option>
+                    <option value="Times New Roman">Times New Roman</option>
+                    <option value="Courier New">Courier New</option>
+                    <option value="Georgia">Georgia</option>
+                    <option value="Verdana">Verdana</option>
+                </select>
+                
+                <select id="fontWeight">
+                    <option value="normal">Normal</option>
+                    <option value="bold">Bold</option>
+                </select>
+                
+                <select id="fontStyle">
+                    <option value="normal">Normal</option>
+                    <option value="italic">Italic</option>
+                </select>
+            </div>
+            
+            <div class="toolbar-group">
+                <input type="color" id="textColor" class="color-picker" value="#000000">
+                
+                <select id="textAlign">
+                    <option value="left">Left</option>
+                    <option value="center">Center</option>
+                    <option value="right">Right</option>
+                </select>
+            </div>
+            
+            <div class="image-controls" id="imageControls">
+                <span class="image-size-label">Image Size:</span>
+                <input type="range" id="imageSize" min="10" max="200" value="100">
+                <span id="imageSizeValue">100%</span>
+            </div>
+        </div>
+        
+        <div class="pdf-page a4" id="pdfPage">
+                <!-- Add this hidden copyright div that will only show in PDF -->
+    <div id="pdfCopyright" class="pdf-copyright">Maths 2025</div>
+        </div>
+    </div>
+
+    <!-- MathML Dialog -->
+    <div class="overlay" id="mathmlOverlay"></div>
+    <div class="mathml-dialog" id="mathmlDialog">
+        <h3>Insert MathML</h3>
+        <textarea id="mathmlInput" placeholder="Paste your MathML code here..."></textarea>
+        <div class="mathml-dialog-buttons">
+            <button id="cancelMathBtn" class="btn">Cancel</button>
+            <button id="insertMathBtn" class="btn">Insert</button>
+        </div>
+    </div>
+
+    <!-- Include html2pdf and MathJax libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM elements
+            const pdfPage = document.getElementById('pdfPage');
+            const addTextBtn = document.getElementById('addTextBtn');
+            const addImageBtn = document.getElementById('addImageBtn');
+            const addMathBtn = document.getElementById('addMathBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const fontSize = document.getElementById('fontSize');
+            const fontSizeValue = document.getElementById('fontSizeValue');
+            const fontFamily = document.getElementById('fontFamily');
+            const fontWeight = document.getElementById('fontWeight');
+            const fontStyle = document.getElementById('fontStyle');
+            const textColor = document.getElementById('textColor');
+            const textAlign = document.getElementById('textAlign');
+            const imageControls = document.getElementById('imageControls');
+            const imageSize = document.getElementById('imageSize');
+            const imageSizeValue = document.getElementById('imageSizeValue');
+            const mathmlDialog = document.getElementById('mathmlDialog');
+            const mathmlOverlay = document.getElementById('mathmlOverlay');
+            const mathmlInput = document.getElementById('mathmlInput');
+            const insertMathBtn = document.getElementById('insertMathBtn');
+            const cancelMathBtn = document.getElementById('cancelMathBtn');
+            
+            let activeElement = null;
+            let isDragging = false;
+            let startX, startY, startLeft, startTop;
+            let isResizing = false;
+            let originalImageWidth = 0;
+            let originalImageHeight = 0;
+            
+            // Update font size display
+            fontSize.addEventListener('input', function() {
+                fontSizeValue.textContent = this.value;
+                if (activeElement && (activeElement.classList.contains('editable-text') || activeElement.classList.contains('editable-math'))) {
+                    activeElement.style.fontSize = this.value + 'px';
+                }
+            });
+            
+            // Update image size display
+            imageSize.addEventListener('input', function() {
+                const scale = this.value / 100;
+                imageSizeValue.textContent = this.value + '%';
+                
+                if (activeElement && activeElement.classList.contains('editable-image')) {
+                    activeElement.style.width = (originalImageWidth * scale) + 'px';
+                    activeElement.style.height = (originalImageHeight * scale) + 'px';
+                    
+                    // Ensure image stays within bounds after scaling
+                    const pageRect = pdfPage.getBoundingClientRect();
+                    const elementRect = activeElement.getBoundingClientRect();
+                    const currentLeft = parseFloat(activeElement.style.left || '0');
+                    const currentTop = parseFloat(activeElement.style.top || '0');
+                    
+                    // Check if element goes out of bounds
+                    if (currentLeft + elementRect.width > pageRect.width) {
+                        activeElement.style.left = (pageRect.width - elementRect.width) + 'px';
+                    }
+                    if (currentTop + elementRect.height > pageRect.height) {
+                        activeElement.style.top = (pageRect.height - elementRect.height) + 'px';
+                    }
+                }
+            });
+            
+            // Add text element
+            addTextBtn.addEventListener('click', function() {
+                const textElement = document.createElement('div');
+                textElement.className = 'editable-text';
+                textElement.textContent = 'Click edit button to type';
+                
+                // Apply current styles
+                textElement.style.fontSize = fontSize.value + 'px';
+                textElement.style.fontFamily = fontFamily.value;
+                textElement.style.fontWeight = fontWeight.value;
+                textElement.style.fontStyle = fontStyle.value;
+                textElement.style.color = textColor.value;
+                textElement.style.textAlign = textAlign.value;
+                
+                // Position roughly in the center
+                const rect = pdfPage.getBoundingClientRect();
+                textElement.style.left = (rect.width / 2 - 50) + 'px';
+                textElement.style.top = (rect.height / 2 - 10) + 'px';
+                
+                // Add delete button
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.innerHTML = '×';
+                deleteBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    pdfPage.removeChild(textElement);
+                    if (activeElement === textElement) {
+                        activeElement = null;
+                        imageControls.classList.remove('active');
+                    }
+                });
+                textElement.appendChild(deleteBtn);
+                
+                // Add edit button
+                const editBtn = document.createElement('button');
+                editBtn.className = 'edit-btn';
+                editBtn.innerHTML = '✎';
+                editBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    textElement.contentEditable = true;
+                    textElement.classList.add('editing');
+                    textElement.focus();
+                    
+                    // Select all text for easier editing
+                    const range = document.createRange();
+                    range.selectNodeContents(textElement);
+                    const selection = window.getSelection();
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                });
+                textElement.appendChild(editBtn);
+                
+                // Add resize handle
+                const resizeHandle = document.createElement('div');
+                resizeHandle.className = 'resize-handle';
+                textElement.appendChild(resizeHandle);
+                
+                // Blur event to end editing
+                textElement.addEventListener('blur', function() {
+                    textElement.contentEditable = false;
+                    textElement.classList.remove('editing');
+                });
+                
+                // Add event listeners for dragging
+                setupDragAndResize(textElement);
+                
+                pdfPage.appendChild(textElement);
+                
+                // Set as active element
+                setActiveElement(textElement);
+            });
+            
+            // Add image element
+            addImageBtn.addEventListener('click', function() {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'image/*';
+                
+                input.onchange = function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(event) {
+                            const imgElement = document.createElement('img');
+                            imgElement.className = 'editable-image';
+                            imgElement.src = event.target.result;
+                            
+                            // Store original dimensions when image loads
+                            imgElement.onload = function() {
+                                originalImageWidth = this.width;
+                                originalImageHeight = this.height;
+                                
+                                // Set initial size (100%)
+                                imgElement.style.width = originalImageWidth + 'px';
+                                imgElement.style.height = originalImageHeight + 'px';
+                                
+                                // Adjust if too big for the page
+                                const pageRect = pdfPage.getBoundingClientRect();
+                                if (originalImageWidth > pageRect.width * 0.8) {
+                                    const scale = (pageRect.width * 0.8) / originalImageWidth;
+                                    imgElement.style.width = (originalImageWidth * scale) + 'px';
+                                    imgElement.style.height = (originalImageHeight * scale) + 'px';
+                                    imageSize.value = scale * 100;
+                                    imageSizeValue.textContent = Math.round(scale * 100) + '%';
+                                } else {
+                                    imageSize.value = 100;
+                                    imageSizeValue.textContent = '100%';
+                                }
+                            };
+                            
+                            // Position roughly in the center
+                            const rect = pdfPage.getBoundingClientRect();
+                            imgElement.style.left = (rect.width / 2 - 50) + 'px';
+                            imgElement.style.top = (rect.height / 2 - 50) + 'px';
+                            
+                            // Add delete button
+                            const deleteBtn = document.createElement('button');
+                            deleteBtn.className = 'delete-btn';
+                            deleteBtn.innerHTML = '×';
+                            deleteBtn.addEventListener('click', function(e) {
+                                e.stopPropagation();
+                                pdfPage.removeChild(imgElement);
+                                if (activeElement === imgElement) {
+                                    activeElement = null;
+                                    imageControls.classList.remove('active');
+                                }
+                            });
+                            imgElement.appendChild(deleteBtn);
+                            
+                            // Add edit button (for image replacement)
+                            const editBtn = document.createElement('button');
+                            editBtn.className = 'edit-btn';
+                            editBtn.innerHTML = '✎';
+                            editBtn.addEventListener('click', function(e) {
+                                e.stopPropagation();
+                                const input = document.createElement('input');
+                                input.type = 'file';
+                                input.accept = 'image/*';
+                                
+                                input.onchange = function(e) {
+                                    const file = e.target.files[0];
+                                    if (file) {
+                                        const reader = new FileReader();
+                                        reader.onload = function(event) {
+                                            imgElement.src = event.target.result;
+                                            
+                                            // Update original dimensions when new image loads
+                                            imgElement.onload = function() {
+                                                originalImageWidth = this.width;
+                                                originalImageHeight = this.height;
+                                                
+                                                // Reset to 100% scale
+                                                const currentScale = parseInt(imageSize.value) / 100;
+                                                imgElement.style.width = (originalImageWidth * currentScale) + 'px';
+                                                imgElement.style.height = (originalImageHeight * currentScale) + 'px';
+                                            };
+                                        };
+                                        reader.readAsDataURL(file);
+                                    }
+                                };
+                                input.click();
+                            });
+                            imgElement.appendChild(editBtn);
+                            
+                            // Add resize handle
+                            const resizeHandle = document.createElement('div');
+                            resizeHandle.className = 'resize-handle';
+                            imgElement.appendChild(resizeHandle);
+                            
+                            // Add event listeners for dragging
+                            setupDragAndResize(imgElement);
+                            
+                            pdfPage.appendChild(imgElement);
+                            
+                            // Set as active element
+                            setActiveElement(imgElement);
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                };
+                
+                input.click();
+            });
+            
+            // MathML dialog handling
+            addMathBtn.addEventListener('click', function() {
+                mathmlInput.value = '';
+                mathmlDialog.style.display = 'block';
+                mathmlOverlay.style.display = 'block';
+            });
+            
+            cancelMathBtn.addEventListener('click', function() {
+                mathmlDialog.style.display = 'none';
+                mathmlOverlay.style.display = 'none';
+            });
+            
+            insertMathBtn.addEventListener('click', function() {
+                const mathmlCode = mathmlInput.value.trim();
+                if (mathmlCode) {
+                    insertMathML(mathmlCode);
+                    mathmlDialog.style.display = 'none';
+                    mathmlOverlay.style.display = 'none';
+                }
+            });
+            
+            mathmlOverlay.addEventListener('click', function() {
+                mathmlDialog.style.display = 'none';
+                mathmlOverlay.style.display = 'none';
+            });
+            
+            function insertMathML(mathmlCode) {
+                const mathContainer = document.createElement('div');
+                mathContainer.className = 'editable-math';
+                
+                // Create a wrapper div for the MathML content
+                const mathWrapper = document.createElement('div');
+                mathWrapper.innerHTML = mathmlCode;
+                mathContainer.appendChild(mathWrapper);
+                
+                // Apply current styles
+                mathContainer.style.fontSize = fontSize.value + 'px';
+                mathContainer.style.fontFamily = fontFamily.value;
+                mathContainer.style.fontWeight = fontWeight.value;
+                mathContainer.style.fontStyle = fontStyle.value;
+                mathContainer.style.color = textColor.value;
+                
+                // Position roughly in the center
+                const rect = pdfPage.getBoundingClientRect();
+                mathContainer.style.left = (rect.width / 2 - 50) + 'px';
+                mathContainer.style.top = (rect.height / 2 - 50) + 'px';
+                
+                // Add delete button
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.innerHTML = '×';
+                deleteBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    pdfPage.removeChild(mathContainer);
+                    if (activeElement === mathContainer) {
+                        activeElement = null;
+                    }
+                });
+                mathContainer.appendChild(deleteBtn);
+                
+                // Add edit button
+                const editBtn = document.createElement('button');
+                editBtn.className = 'edit-btn';
+                editBtn.innerHTML = '✎';
+                editBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    mathmlInput.value = mathWrapper.innerHTML;
+                    mathmlDialog.style.display = 'block';
+                    mathmlOverlay.style.display = 'block';
+                });
+                mathContainer.appendChild(editBtn);
+                
+                // Add resize handle
+                const resizeHandle = document.createElement('div');
+                resizeHandle.className = 'resize-handle';
+                mathContainer.appendChild(resizeHandle);
+                
+                // Add event listeners for dragging
+                setupDragAndResize(mathContainer);
+                
+                pdfPage.appendChild(mathContainer);
+                
+                // Set as active element
+                setActiveElement(mathContainer);
+                
+                // Render the MathML with MathJax
+                MathJax.typesetPromise([mathWrapper]).catch(function(err) {
+                    console.error('MathJax typeset error:', err);
+                });
+            }
+              // Download as PDF
+              downloadBtn.addEventListener('click', function() {
+                // Show the copyright div temporarily
+                const copyright = document.getElementById('pdfCopyright');
+                copyright.style.display = 'block';
+                
+                const opt = {
+                    margin: 0,
+                    filename: 'document.pdf',
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { 
+                        scale: 2,
+                        logging: true, // Enable logging to debug if needed
+                        useCORS: true,
+                        allowTaint: true,
+                        onclone: function(clonedDoc) {
+                            // Ensure the copyright is visible in the clone
+                            clonedDoc.getElementById('pdfCopyright').style.display = 'block';
+                        }
+                    },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
+                
+                // Temporarily hide all control buttons during PDF generation
+                const buttons = document.querySelectorAll('.delete-btn, .resize-handle, .edit-btn');
+                buttons.forEach(btn => {
+                    btn.style.visibility = 'hidden';
+                });
+                
+                // Also hide editing outlines
+                const editingElements = document.querySelectorAll('.editing');
+                editingElements.forEach(el => {
+                    el.classList.remove('editing');
+                });
+                
+                // Generate PDF
+                html2pdf().from(pdfPage).set(opt).save().then(() => {
+                    // Restore buttons after PDF generation
+                    buttons.forEach(btn => {
+                        btn.style.visibility = 'visible';
+                    });
+                    // Hide the copyright again
+                    copyright.style.display = 'none';
+                }).catch(err => {
+                    console.error('PDF generation error:', err);
+                    copyright.style.display = 'none';
+                });
+            });
+
+
+            
+            // Style controls
+            fontFamily.addEventListener('change', function() {
+                if (activeElement && (activeElement.classList.contains('editable-text') || activeElement.classList.contains('editable-math'))) {
+                    activeElement.style.fontFamily = this.value;
+                }
+            });
+            
+            fontWeight.addEventListener('change', function() {
+                if (activeElement && (activeElement.classList.contains('editable-text') || activeElement.classList.contains('editable-math'))) {
+                    activeElement.style.fontWeight = this.value;
+                }
+            });
+            
+            fontStyle.addEventListener('change', function() {
+                if (activeElement && (activeElement.classList.contains('editable-text') || activeElement.classList.contains('editable-math'))) {
+                    activeElement.style.fontStyle = this.value;
+                }
+            });
+            
+            textColor.addEventListener('input', function() {
+                if (activeElement && (activeElement.classList.contains('editable-text') || activeElement.classList.contains('editable-math'))) {
+                    activeElement.style.color = this.value;
+                }
+            });
+            
+            textAlign.addEventListener('change', function() {
+                if (activeElement && activeElement.classList.contains('editable-text')) {
+                    activeElement.style.textAlign = this.value;
+                }
+            });
+            
+            // Set active element function
+            function setActiveElement(element) {
+                // Remove active class from all elements
+                document.querySelectorAll('.editable-text, .editable-image, .editable-math').forEach(el => {
+                    el.classList.remove('active');
+                });
+                
+                // Hide image controls by default
+                imageControls.classList.remove('active');
+                
+                // Set new active element
+                activeElement = element;
+                if (element) {
+                    element.classList.add('active');
+                    
+                    // Show image controls if active element is an image
+                    if (element.classList.contains('editable-image')) {
+                        imageControls.classList.add('active');
+                        
+                        // Calculate current scale percentage
+                        const currentWidth = parseFloat(element.style.width || originalImageWidth);
+                        const scalePercentage = Math.round((currentWidth / originalImageWidth) * 100);
+                        imageSize.value = scalePercentage;
+                        imageSizeValue.textContent = scalePercentage + '%';
+                    }
+                    
+                    // Update controls to match active element's styles (for text and math)
+                    if (element.classList.contains('editable-text') || element.classList.contains('editable-math')) {
+                        const style = window.getComputedStyle(element);
+                        fontSize.value = parseInt(style.fontSize);
+                        fontSizeValue.textContent = parseInt(style.fontSize);
+                        fontFamily.value = style.fontFamily.split(',')[0].replace(/['"]/g, '');
+                        fontWeight.value = style.fontWeight;
+                        fontStyle.value = style.fontStyle;
+                        textColor.value = rgbToHex(style.color);
+                        
+                        if (element.classList.contains('editable-text')) {
+                            textAlign.value = style.textAlign;
+                        }
+                    }
+                }
+            }
+            
+            // Helper function to convert RGB to HEX
+            function rgbToHex(rgb) {
+                if (rgb.startsWith('#')) return rgb;
+                
+                const rgbValues = rgb.match(/\d+/g);
+                if (!rgbValues || rgbValues.length < 3) return '#000000';
+                
+                const r = parseInt(rgbValues[0]).toString(16).padStart(2, '0');
+                const g = parseInt(rgbValues[1]).toString(16).padStart(2, '0');
+                const b = parseInt(rgbValues[2]).toString(16).padStart(2, '0');
+                
+                return `#${r}${g}${b}`;
+            }
+            
+            // Setup drag and resize functionality
+            function setupDragAndResize(element) {
+                const deleteBtn = element.querySelector('.delete-btn');
+                const editBtn = element.querySelector('.edit-btn');
+                const resizeHandle = element.querySelector('.resize-handle');
+                
+                // Click to select
+                element.addEventListener('mousedown', function(e) {
+                    if (e.target === deleteBtn || e.target === editBtn || e.target === resizeHandle) return;
+                    
+                    setActiveElement(element);
+                    e.preventDefault();
+                });
+                
+                element.addEventListener('touchstart', function(e) {
+                    if (e.target === deleteBtn || e.target === editBtn || e.target === resizeHandle) return;
+                    
+                    setActiveElement(element);
+                    e.preventDefault();
+                });
+                
+                // Mouse down for dragging
+                element.addEventListener('mousedown', startDrag);
+                element.addEventListener('touchstart', startDrag);
+                
+                // Mouse down on resize handle
+                if (resizeHandle) {
+                    resizeHandle.addEventListener('mousedown', startResize);
+                    resizeHandle.addEventListener('touchstart', startResize);
+                }
+                
+                function startDrag(e) {
+                    if (e.target === deleteBtn || e.target === editBtn || e.target === resizeHandle) return;
+                    
+                    isDragging = true;
+                    
+                    const clientX = e.clientX || e.touches[0].clientX;
+                    const clientY = e.clientY || e.touches[0].clientY;
+                    
+                    startX = clientX;
+                    startY = clientY;
+                    
+                    const rect = element.getBoundingClientRect();
+                    startLeft = rect.left - pdfPage.getBoundingClientRect().left;
+                    startTop = rect.top - pdfPage.getBoundingClientRect().top;
+                    
+                    document.addEventListener('mousemove', drag);
+                    document.addEventListener('touchmove', drag, { passive: false });
+                    document.addEventListener('mouseup', stopDrag);
+                    document.addEventListener('touchend', stopDrag);
+                    
+                    e.preventDefault();
+                }
+                
+                function startResize(e) {
+                    isResizing = true;
+                    
+                    const clientX = e.clientX || e.touches[0].clientX;
+                    const clientY = e.clientY || e.touches[0].clientY;
+                    
+                    startX = clientX;
+                    startY = clientY;
+                    
+                    const rect = element.getBoundingClientRect();
+                    startLeft = rect.width;
+                    startTop = rect.height;
+                    
+                    document.addEventListener('mousemove', resize);
+                    document.addEventListener('touchmove', resize, { passive: false });
+                    document.addEventListener('mouseup', stopResize);
+                    document.addEventListener('touchend', stopResize);
+                    
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                
+                function drag(e) {
+                    if (!isDragging) return;
+                    
+                    const clientX = e.clientX || e.touches[0].clientX;
+                    const clientY = e.clientY || e.touches[0].clientY;
+                    
+                    const dx = clientX - startX;
+                    const dy = clientY - startY;
+                    
+                    let newLeft = startLeft + dx;
+                    let newTop = startTop + dy;
+                    
+                    // Constrain to PDF page boundaries
+                    const pageRect = pdfPage.getBoundingClientRect();
+                    const elementRect = element.getBoundingClientRect();
+                    
+                    // Calculate max positions
+                    const maxLeft = pageRect.width - elementRect.width;
+                    const maxTop = pageRect.height - elementRect.height;
+                    
+                    // Apply constraints
+                    newLeft = Math.max(0, Math.min(newLeft, maxLeft));
+                    newTop = Math.max(0, Math.min(newTop, maxTop));
+                    
+                    element.style.left = newLeft + 'px';
+                    element.style.top = newTop + 'px';
+                    
+                    e.preventDefault();
+                }
+                
+                function resize(e) {
+                    if (!isResizing) return;
+                    
+                    const clientX = e.clientX || e.touches[0].clientX;
+                    const clientY = e.clientY || e.touches[0].clientY;
+                    
+                    const dx = clientX - startX;
+                    const dy = clientY - startY;
+                    
+                    if (element.classList.contains('editable-text')) {
+                        // For text, we'll adjust width/height and let text wrap
+                        const newWidth = Math.max(50, startLeft + dx);
+                        element.style.width = newWidth + 'px';
+                    } else if (element.classList.contains('editable-image')) {
+                        // For images, maintain aspect ratio
+                        const newWidth = Math.max(50, Math.min(800, startLeft + dx));
+                        const aspectRatio = startTop / startLeft;
+                        const newHeight = newWidth * aspectRatio;
+                        
+                        element.style.width = newWidth + 'px';
+                        element.style.height = newHeight + 'px';
+                        
+                        // Update the size slider
+                        if (originalImageWidth > 0) {
+                            const scalePercentage = Math.round((newWidth / originalImageWidth) * 100);
+                            imageSize.value = scalePercentage;
+                            imageSizeValue.textContent = scalePercentage + '%';
+                        }
+                        
+                        // Ensure image stays within bounds after resize
+                        const pageRect = pdfPage.getBoundingClientRect();
+                        const elementRect = element.getBoundingClientRect();
+                        const currentLeft = parseFloat(element.style.left || '0');
+                        const currentTop = parseFloat(element.style.top || '0');
+                        
+                        // Check if element goes out of bounds
+                        if (currentLeft + newWidth > pageRect.width) {
+                            element.style.left = (pageRect.width - newWidth) + 'px';
+                        }
+                        if (currentTop + newHeight > pageRect.height) {
+                            element.style.top = (pageRect.height - newHeight) + 'px';
+                        }
+                    } else if (element.classList.contains('editable-math')) {
+                        // For MathML, just adjust width (height will adjust automatically)
+                        const newWidth = Math.max(50, startLeft + dx);
+                        element.style.width = newWidth + 'px';
+                    }
+                    
+                    e.preventDefault();
+                }
+                
+                function stopDrag() {
+                    isDragging = false;
+                    document.removeEventListener('mousemove', drag);
+                    document.removeEventListener('touchmove', drag);
+                    document.removeEventListener('mouseup', stopDrag);
+                    document.removeEventListener('touchend', stopDrag);
+                }
+                
+                function stopResize() {
+                    isResizing = false;
+                    document.removeEventListener('mousemove', resize);
+                    document.removeEventListener('touchmove', resize);
+                    document.removeEventListener('mouseup', stopResize);
+                    document.removeEventListener('touchend', stopResize);
+                }
+            }
+            
+            // Click on page to deselect
+            pdfPage.addEventListener('mousedown', function(e) {
+                if (e.target === pdfPage) {
+                    setActiveElement(null);
+                }
+            });
+            
+            pdfPage.addEventListener('touchstart', function(e) {
+                if (e.target === pdfPage) {
+                    setActiveElement(null);
+                }
+            });
+            
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                // Ensure elements stay within bounds when window is resized
+                document.querySelectorAll('.editable-text, .editable-image, .editable-math').forEach(element => {
+                    const rect = element.getBoundingClientRect();
+                    const pageRect = pdfPage.getBoundingClientRect();
+                    
+                    // Check if element is out of bounds
+                    if (rect.right > pageRect.right) {
+                        element.style.left = (pageRect.width - rect.width) + 'px';
+                    }
+                    if (rect.bottom > pageRect.bottom) {
+                        element.style.top = (pageRect.height - rect.height) + 'px';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
