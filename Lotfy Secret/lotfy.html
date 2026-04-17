@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Auto Contact Importer: vCard to CSV | One-Click Export</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background: radial-gradient(circle at 10% 30%, #eef2f7, #d9e2ec);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .glass-panel {
+            max-width: 860px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.97);
+            backdrop-filter: blur(2px);
+            border-radius: 64px;
+            box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.25), 0 1px 2px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            padding: 32px 32px 44px;
+            transition: all 0.2s;
+            border: 1px solid rgba(255,255,240,0.6);
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(145deg, #1e2f3e, #2b5f8a);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .badge-auto {
+            background: #10b98120;
+            color: #0b5e42;
+            font-size: 0.7rem;
+            font-weight: 500;
+            padding: 4px 12px;
+            border-radius: 40px;
+            letter-spacing: normal;
+        }
+
+        .sub {
+            color: #4b6589;
+            margin: 12px 0 20px 0;
+            padding-left: 4px;
+            border-left: 4px solid #3b82f6;
+            font-weight: 450;
+        }
+
+        .upload-area {
+            background: #f9fcff;
+            border: 2px dashed #94a3b8;
+            border-radius: 48px;
+            padding: 36px 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            margin-bottom: 24px;
+        }
+
+        .upload-area:hover {
+            border-color: #3b82f6;
+            background: #eff6ff;
+            transform: scale(0.99);
+        }
+
+        .upload-icon {
+            font-size: 52px;
+            background: #eef2ff;
+            width: 80px;
+            height: 80px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 60px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.02);
+        }
+
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 16px;
+            margin: 16px 0 8px;
+        }
+
+        .btn {
+            border: none;
+            padding: 12px 28px;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+            background: #1e293b;
+            color: white;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        .btn-primary {
+            background: #0f2b3d;
+        }
+        .btn-primary:hover {
+            background: #1e4b6e;
+            transform: translateY(-2px);
+        }
+        .btn-success {
+            background: #0e7c6e;
+        }
+        .btn-success:hover:not(:disabled) {
+            background: #0b5e52;
+            transform: translateY(-2px);
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid #cbd5e1;
+            color: #1e293b;
+            box-shadow: none;
+        }
+        .btn-outline:hover {
+            background: #f1f5f9;
+            border-color: #3b82f6;
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .info-card {
+            background: #f0f4f9;
+            border-radius: 32px;
+            padding: 16px 20px;
+            margin-top: 28px;
+            font-size: 0.85rem;
+        }
+
+        .status-bar {
+            background: #e6f7ec;
+            border-radius: 60px;
+            padding: 12px 20px;
+            text-align: center;
+            font-weight: 500;
+            margin: 12px 0 6px;
+            display: none;
+            font-size: 0.85rem;
+        }
+        .status-bar.show {
+            display: block;
+            animation: fadeUp 0.2s ease;
+        }
+
+        .preview-card {
+            margin-top: 24px;
+            border-radius: 32px;
+            background: white;
+            border: 1px solid #e2edf7;
+            overflow: hidden;
+            display: none;
+        }
+        .preview-header {
+            padding: 14px 20px;
+            background: #fafdff;
+            font-weight: 600;
+            border-bottom: 1px solid #e9eef3;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+        }
+        .table-wrapper {
+            overflow-x: auto;
+            padding: 0 4px 8px 4px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.75rem;
+        }
+        th {
+            text-align: left;
+            padding: 12px 10px;
+            background: #f8fafc;
+            color: #1e2f44;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        td {
+            padding: 10px 10px;
+            border-bottom: 1px solid #f0f4fa;
+            vertical-align: top;
+        }
+        .badge-count {
+            background: #eef2ff;
+            border-radius: 40px;
+            padding: 4px 12px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(8px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+        footer {
+            font-size: 0.7rem;
+            text-align: center;
+            margin-top: 32px;
+            color: #5b6e8c;
+        }
+        .filename-chip {
+            background: #e9f0f5;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        @media (max-width: 560px) {
+            .glass-panel { padding: 24px 18px; }
+            h1 { font-size: 1.6rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="glass-panel">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+        <h1>📇 AutoContact CSV <span class="badge-auto">⚡ auto-detect all</span></h1>
+        <div class="filename-chip" id="fileNameDisplay" style="display: none;">📂 no file</div>
+    </div>
+    <div class="sub">
+        Upload your iPhone vCard (.vcf) — <strong>automatically extracts every contact</strong> with all phone numbers, emails & names. One click → clean CSV.
+    </div>
+
+    <!-- hidden file input -->
+    <input type="file" id="vcfInput" accept=".vcf,.vcard,text/vcard,text/x-vcard" style="display: none;" />
+
+    <!-- upload zone -->
+    <div class="upload-area" id="uploadZone">
+        <div class="upload-icon">📂📇</div>
+        <div style="font-weight: 600; font-size: 1rem;">Drag & drop or click to upload</div>
+        <div style="font-size: 0.8rem; color: #475569; margin-top: 6px;">Supports single or multi-contact .vcf from iPhone</div>
+        <div style="margin-top: 18px;">
+            <button class="btn btn-primary" id="selectFileBtn" type="button">📁 Choose vCard file</button>
+        </div>
+        <div style="font-size: 0.7rem; margin-top: 14px;">📌 iPhone: Contacts → Select All → Export → Save as .vcf</div>
+    </div>
+
+    <!-- dynamic status -->
+    <div id="statusMessage" class="status-bar"></div>
+
+    <!-- control panel (appears after upload) -->
+    <div id="actionPanel" style="display: none; margin-top: 12px;">
+        <div class="btn-group">
+            <button id="convertAndGenerateBtn" class="btn btn-primary">✨ Auto-convert to CSV</button>
+            <button id="downloadFinalCSVBtn" class="btn btn-success" disabled>📥 Download CSV (all contacts)</button>
+            <button id="resetUploadBtn" class="btn btn-outline">↻ New file</button>
+        </div>
+    </div>
+
+    <!-- preview table (auto shows after conversion) -->
+    <div id="previewContainer" class="preview-card">
+        <div class="preview-header">
+            <span>📋 Contact preview (first 5 shown — full CSV includes all)</span>
+            <span id="contactCountBadge" class="badge-count">0 contacts</span>
+        </div>
+        <div class="table-wrapper">
+            <table id="previewTable">
+                <thead id="previewHead"></thead>
+                <tbody id="previewBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="info-card">
+        🔄 <strong>Fully automatic detection</strong> — The moment you upload a vCard, the system reads every contact inside. 
+        Then just click “Auto-convert to CSV” to generate a professional CSV with all names, phone numbers (mobile/home/work), emails, and organization. 
+        <strong>No manual selection needed, no data leaves your device.</strong> Compatible with iCloud export, Apple Contacts.
+    </div>
+    <footer>
+        🧠 Works 100% offline • Auto-detects unlimited contacts • Each phone & email preserved
+    </footer>
+</div>
+
+<script>
+    (function() {
+        // DOM elements
+        const fileInput = document.getElementById('vcfInput');
+        const uploadZone = document.getElementById('uploadZone');
+        const selectFileBtn = document.getElementById('selectFileBtn');
+        const statusDiv = document.getElementById('statusMessage');
+        const actionPanel = document.getElementById('actionPanel');
+        const fileNameSpan = document.getElementById('fileNameDisplay');
+        const convertBtn = document.getElementById('convertAndGenerateBtn');
+        const downloadBtn = document.getElementById('downloadFinalCSVBtn');
+        const resetBtn = document.getElementById('resetUploadBtn');
+        const previewContainer = document.getElementById('previewContainer');
+        const previewHead = document.getElementById('previewHead');
+        const previewBody = document.getElementById('previewBody');
+        const contactCountSpan = document.getElementById('contactCountBadge');
+
+        // State
+        let rawVCFContent = null;        // raw string content of uploaded vcard
+        let parsedContactsArray = [];     // full list of contact objects
+        let generatedCSVString = null;    // final csv data
+
+        // Helper: show status message (auto disappear)
+        function setStatus(msg, isError = false, duration = 4000) {
+            statusDiv.textContent = msg;
+            statusDiv.style.background = isError ? '#fee9e6' : '#dcfce7';
+            statusDiv.style.color = isError ? '#b91c1c' : '#115e59';
+            statusDiv.classList.add('show');
+            setTimeout(() => {
+                if (statusDiv.textContent === msg) {
+                    statusDiv.classList.remove('show');
+                }
+            }, duration);
+        }
+
+        // Reset everything for new file
+        function fullReset() {
+            rawVCFContent = null;
+            parsedContactsArray = [];
+            generatedCSVString = null;
+            downloadBtn.disabled = true;
+            downloadBtn.innerText = '📥 Download CSV (all contacts)';
+            convertBtn.disabled = false;
+            convertBtn.innerText = '✨ Auto-convert to CSV';
+            previewContainer.style.display = 'none';
+            actionPanel.style.display = 'none';
+            fileNameSpan.style.display = 'none';
+            fileNameSpan.innerText = '';
+            previewHead.innerHTML = '';
+            previewBody.innerHTML = '';
+            contactCountSpan.innerText = '0 contacts';
+        }
+
+        // Display filename after upload
+        function showFileUploaded(fileName, vcfText) {
+            fullReset();
+            rawVCFContent = vcfText;
+            fileNameSpan.innerText = `📄 ${fileName}`;
+            fileNameSpan.style.display = 'inline-flex';
+            actionPanel.style.display = 'block';
+            setStatus(`✅ "${fileName}" loaded. ${vcfText.length} bytes — ready to auto-convert.`, false);
+            // After upload we parse to show automatic detection message but don't show full preview until conversion
+            // But we will auto-parse to count contacts? Not needed, but we can do a lightweight detection preview? 
+            // Let's do a background parse to show "X contacts detected automatically" without storing preview.
+            try {
+                const tempContacts = parseVCardToContacts(vcfText);
+                if (tempContacts && tempContacts.length) {
+                    setStatus(`📇 Auto-detected ${tempContacts.length} contact(s) inside "${fileName}". Click convert to get CSV.`, false, 4500);
+                } else {
+                    setStatus(`⚠️ File uploaded but no valid contacts detected. Make sure it's a standard vCard.`, true, 4000);
+                }
+            } catch(e) {
+                console.warn(e);
+            }
+        }
+
+        // ---------- ADVANCED VCard Parser (fully automatic, detects all phones & emails) ----------
+        function parseVCardToContacts(vcfData) {
+            const lines = vcfData.split(/\r?\n/);
+            const contacts = [];
+            let current = null;
+            let inVCard = false;
+
+            function unescape(v) {
+                if (!v) return '';
+                return v.replace(/\\,/g, ',').replace(/\\;/g, ';').replace(/\\\\/g, '\\');
+            }
+
+            function extractTypeParams(propLine) {
+                const types = [];
+                const typeMatch = propLine.match(/TYPE(?:=([^:;]+))?/i);
+                if (typeMatch) {
+                    let typeVal = typeMatch[1] || 'PREF';
+                    if (typeVal) {
+                        const parts = typeVal.split(',');
+                        for (let p of parts) {
+                            let upper = p.toUpperCase();
+                            if (upper === 'CELL' || upper === 'MOBILE') types.push('MOBILE');
+                            else if (upper === 'HOME') types.push('HOME');
+                            else if (upper === 'WORK') types.push('WORK');
+                            else if (upper === 'IPHONE') types.push('MOBILE');
+                            else types.push(upper);
+                        }
+                    }
+                }
+                if (types.length === 0) types.push('OTHER');
+                return types;
+            }
+
+            for (let i = 0; i < lines.length; i++) {
+                let line = lines[i].trim();
+                if (line === '') continue;
+                // handle folding
+                while (i+1 < lines.length && (lines[i+1][0] === ' ' || lines[i+1][0] === '\t')) {
+                    line += lines[i+1].trim();
+                    i++;
+                }
+                const upperLine = line.toUpperCase();
+                if (upperLine.startsWith('BEGIN:VCARD')) {
+                    inVCard = true;
+                    current = {
+                        fullName: '',
+                        firstName: '',
+                        lastName: '',
+                        phones: [],
+                        emails: [],
+                        organization: ''
+                    };
+                    continue;
+                }
+                if (upperLine.startsWith('END:VCARD')) {
+                    if (current) {
+                        if (!current.fullName && (current.firstName || current.lastName)) {
+                            current.fullName = `${current.firstName} ${current.lastName}`.trim();
+                        }
+                        if (!current.fullName) current.fullName = 'Unnamed';
+                        contacts.push(current);
+                        current = null;
+                    }
+                    inVCard = false;
+                    continue;
+                }
+                if (!inVCard || !current) continue;
+
+                const colonIdx = line.indexOf(':');
+                if (colonIdx === -1) continue;
+                const keyPart = line.substring(0, colonIdx);
+                const valueRaw = line.substring(colonIdx + 1);
+                const value = unescape(valueRaw);
+                const upperKey = keyPart.toUpperCase().split(';')[0]; // main property
+
+                if (upperKey === 'FN') {
+                    current.fullName = value;
+                }
+                else if (upperKey === 'N') {
+                    const parts = value.split(';');
+                    if (parts.length >= 1) current.lastName = parts[0] || '';
+                    if (parts.length >= 2) current.firstName = parts[1] || '';
+                    if (parts.length >= 3) { /* middle optional */ }
+                }
+                else if (upperKey === 'TEL') {
+                    if (value.trim()) {
+                        const types = extractTypeParams(keyPart);
+                        let typeLabel = types[0] || 'OTHER';
+                        current.phones.push({
+                            number: value.trim(),
+                            type: typeLabel
+                        });
+                    }
+                }
+                else if (upperKey === 'EMAIL') {
+                    if (value.trim()) {
+                        const types = extractTypeParams(keyPart);
+                        let label = types[0] || 'OTHER';
+                        current.emails.push({
+                            address: value.trim(),
+                            type: label
+                        });
+                    }
+                }
+                else if (upperKey === 'ORG') {
+                    current.organization = value;
+                }
+            }
+            // remove possible empty contacts
+            return contacts.filter(c => c.fullName || c.phones.length || c.emails.length);
+        }
+
+        // ---- Build CSV with dynamic columns (auto handles all phones & emails per contact) ----
+        function buildCSVFromContacts(contacts) {
+            if (!contacts || contacts.length === 0) return '';
+            // Calculate max phones & emails across all contacts
+            let maxPhones = 0;
+            let maxEmails = 0;
+            for (const c of contacts) {
+                if (c.phones.length > maxPhones) maxPhones = c.phones.length;
+                if (c.emails.length > maxEmails) maxEmails = c.emails.length;
+            }
+            // Build headers
+            const headers = ['Full Name', 'First Name', 'Last Name', 'Organization'];
+            for (let i = 1; i <= maxPhones; i++) {
+                headers.push(`Phone_${i}_TypeAndNumber`);
+            }
+            for (let i = 1; i <= maxEmails; i++) {
+                headers.push(`Email_${i}_AddressAndType`);
+            }
+            // optional: add combined column for quick view
+            const escapeCSV = (field) => {
+                if (field === undefined || field === null) return '';
+                let str = String(field);
+                if (str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r')) {
+                    return `"${str.replace(/"/g, '""')}"`;
+                }
+                return str;
+            };
+
+            const rows = [];
+            for (const c of contacts) {
+                const row = [];
+                row.push(escapeCSV(c.fullName || ''));
+                row.push(escapeCSV(c.firstName || ''));
+                row.push(escapeCSV(c.lastName || ''));
+                row.push(escapeCSV(c.organization || ''));
+
+                for (let i = 0; i < maxPhones; i++) {
+                    if (i < c.phones.length) {
+                        const p = c.phones[i];
+                        row.push(escapeCSV(`${p.type}:${p.number}`));
+                    } else {
+                        row.push('');
+                    }
+                }
+                for (let i = 0; i < maxEmails; i++) {
+                    if (i < c.emails.length) {
+                        const e = c.emails[i];
+                        row.push(escapeCSV(`${e.type}:${e.address}`));
+                    } else {
+                        row.push('');
+                    }
+                }
+                rows.push(row);
+            }
+            const csvLines = [headers.map(escapeCSV).join(','), ...rows.map(r => r.join(','))];
+            return csvLines.join('\n');
+        }
+
+        // show preview table (first 5 contacts) from parsed contacts array
+        function renderPreview(contacts) {
+            if (!contacts || contacts.length === 0) {
+                previewContainer.style.display = 'none';
+                return;
+            }
+            previewContainer.style.display = 'block';
+            contactCountSpan.innerText = `${contacts.length} contact${contacts.length !== 1 ? 's' : ''}`;
+            const sample = contacts.slice(0, 5);
+            // simplified preview headers
+            const previewHeaders = ['Full Name', 'Phone(s) summary', 'Email(s) summary', 'Company'];
+            previewHead.innerHTML = `<tr>${previewHeaders.map(h => `<th>${h}</th>`).join('')}</tr>`;
+            previewBody.innerHTML = '';
+            for (const contact of sample) {
+                const phoneSummary = contact.phones.map(p => `${p.number} (${p.type})`).join(', ') || '—';
+                const emailSummary = contact.emails.map(e => `${e.address}`).join(', ') || '—';
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td style="padding: 8px 10px;">${escapeHtml(contact.fullName || '—')}</td>
+                    <td style="padding: 8px 10px; font-size:0.7rem;">${escapeHtml(phoneSummary)}</td>
+                    <td style="padding: 8px 10px;">${escapeHtml(emailSummary)}</td>
+                    <td style="padding: 8px 10px;">${escapeHtml(contact.organization || '—')}</td>
+                `;
+                previewBody.appendChild(row);
+            }
+            if (contacts.length > 5) {
+                const moreRow = document.createElement('tr');
+                moreRow.innerHTML = `<td colspan="4" style="padding: 12px; background:#fafcff; text-align:center; font-style:italic;">+ ${contacts.length - 5} more contacts (full CSV includes all)</td>`;
+                previewBody.appendChild(moreRow);
+            }
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) { return c; });
+        }
+
+        // main conversion function: parse raw VCF -> contacts -> generate CSV -> update UI
+        function autoConvertAndGenerate() {
+            if (!rawVCFContent) {
+                setStatus('No vCard file loaded. Please upload a file first.', true);
+                return false;
+            }
+            try {
+                const contacts = parseVCardToContacts(rawVCFContent);
+                if (!contacts.length) {
+                    setStatus('❌ No contacts detected. Ensure the file is a valid vCard (.vcf) with contacts.', true);
+                    return false;
+                }
+                parsedContactsArray = contacts;
+                const csvString = buildCSVFromContacts(contacts);
+                if (!csvString) {
+                    setStatus('CSV generation failed due to empty data.', true);
+                    return false;
+                }
+                generatedCSVString = csvString;
+                // enable download
+                downloadBtn.disabled = false;
+                downloadBtn.innerText = '📥 Download CSV (all contacts)';
+                convertBtn.disabled = true;
+                convertBtn.innerText = '✅ CSV ready';
+                // show preview
+                renderPreview(contacts);
+                setStatus(`🎉 Conversion complete! ${contacts.length} contacts processed. All phone numbers & emails extracted.`, false, 5000);
+                return true;
+            } catch (err) {
+                console.error(err);
+                setStatus('Parsing error: The vCard might be corrupted or contain unsupported formatting.', true);
+                return false;
+            }
+        }
+
+        function downloadCSV() {
+            if (!generatedCSVString) {
+                setStatus('No CSV data available. Click "Auto-convert to CSV" first.', true);
+                return;
+            }
+            const bom = "\uFEFF";
+            const blob = new Blob([bom + generatedCSVString], { type: "text/csv;charset=utf-8;" });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.href = url;
+            link.setAttribute('download', 'iphone_all_contacts.csv');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            setStatus(`📎 Downloaded CSV with ${parsedContactsArray.length} contacts — ready for Excel/Google Contacts.`, false, 4000);
+        }
+
+        // handle file from input/drop
+        function handleSelectedFile(file) {
+            if (!file) return;
+            const fileName = file.name;
+            const ext = fileName.split('.').pop().toLowerCase();
+            if (ext !== 'vcf' && ext !== 'vcard') {
+                setStatus('Please upload a .vcf or .vcard file (iPhone contacts export).', true);
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const content = e.target.result;
+                showFileUploaded(fileName, content);
+            };
+            reader.onerror = () => setStatus('Failed to read file', true);
+            reader.readAsText(file, 'UTF-8');
+        }
+
+        // ---- Event listeners ----
+        selectFileBtn.addEventListener('click', () => fileInput.click());
+        uploadZone.addEventListener('click', (e) => {
+            if (e.target === selectFileBtn || selectFileBtn.contains(e.target)) return;
+            fileInput.click();
+        });
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files[0]) handleSelectedFile(e.target.files[0]);
+        });
+        // Drag & drop
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.style.borderColor = '#3b82f6';
+            uploadZone.style.background = '#eef6ff';
+        });
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.style.borderColor = '#94a3b8';
+            uploadZone.style.background = '#f9fcff';
+        });
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.style.borderColor = '#94a3b8';
+            uploadZone.style.background = '#f9fcff';
+            const files = e.dataTransfer.files;
+            if (files.length) handleSelectedFile(files[0]);
+            else setStatus('Drop a valid vCard file', true);
+        });
+        convertBtn.addEventListener('click', autoConvertAndGenerate);
+        downloadBtn.addEventListener('click', downloadCSV);
+        resetBtn.addEventListener('click', () => {
+            fullReset();
+            rawVCFContent = null;
+            fileInput.value = '';
+            setStatus('Reset complete. You can upload a new vCard file.', false, 2500);
+        });
+    })();
+</script>
+</body>
+</html>
