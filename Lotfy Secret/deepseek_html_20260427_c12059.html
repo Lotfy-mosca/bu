@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="ar" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مخطط مشروع نظام قطع غيار محطات الوقود | Project Mind Map</title>
+    <style>
+        /* Classic Style - محكم، تقليدي، وأنيق */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Times New Roman', 'Traditional Arabic', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f2ebdf; /* بيج فاتح كلاسيكي */
+            color: #2c2418;
+            line-height: 1.55;
+            padding: 40px 20px;
+        }
+
+        /* غلاف الوثيقة يشبه الورق العتيق */
+        .document-wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #fffef7;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+            border: 1px solid #dacaa8;
+            padding: 45px 50px;
+            border-radius: 8px;
+        }
+
+        /* الترويسة والتذييل */
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #b38f6b;
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            letter-spacing: 1px;
+            color: #6b3f1c;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        .header h1 small {
+            font-size: 18px;
+            display: block;
+            color: #8b694a;
+            margin-top: 8px;
+            text-transform: none;
+        }
+
+        .header .date {
+            margin-top: 12px;
+            font-style: italic;
+            color: #6f5a3e;
+            font-size: 14px;
+        }
+
+        .footer {
+            margin-top: 45px;
+            border-top: 1px solid #d4c3a6;
+            padding-top: 18px;
+            text-align: center;
+            font-size: 13px;
+            color: #7f694c;
+        }
+
+        /* العناوين الرئيسية */
+        h2 {
+            background: #e8ddce;
+            padding: 10px 18px;
+            border-left: 6px solid #9b6a3c;
+            font-size: 26px;
+            margin: 28px 0 20px 0;
+            color: #3e2a1a;
+            font-weight: bold;
+            clear: both;
+        }
+
+        h3 {
+            font-size: 20px;
+            margin: 25px 0 12px 0;
+            color: #5a3c24;
+            border-bottom: 1px dashed #cbb784;
+            padding-bottom: 5px;
+            font-weight: 600;
+        }
+
+        /* القوائم والتنسيق العام */
+        ul, .mindmap-item {
+            margin: 0 0 12px 25px;
+        }
+
+        li {
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+
+        /* النص العربي */
+        .arabic-trans {
+            direction: rtl;
+            font-family: 'Traditional Arabic', 'Times New Roman', serif;
+            font-size: 0.95em;
+            color: #2a5c5a;
+            background-color: #fcf8e8;
+            display: inline-block;
+            padding: 2px 12px;
+            border-radius: 20px;
+            margin-left: 12px;
+            font-weight: normal;
+            border: 1px solid #ecd9b4;
+        }
+
+        /* لكل نقطة نعرض الترجمة بجانبها أو أسفلها – الأفضل inline-block */
+        .point-with-ar {
+            margin-bottom: 14px;
+        }
+
+        .english-text {
+            display: inline;
+            font-weight: 500;
+        }
+
+        .arabic-translate {
+            display: block;
+            direction: rtl;
+            font-family: 'Traditional Arabic', 'Amiri', serif;
+            font-size: 0.9rem;
+            color: #2c6e6b;
+            background: #fef7e0;
+            padding: 5px 15px;
+            margin-top: 5px;
+            margin-bottom: 6px;
+            border-right: 3px solid #b48c54;
+            border-radius: 0 12px 12px 0;
+        }
+
+        /* الجداول */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            background: #fff9ef;
+            font-size: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        th, td {
+            border: 1px solid #cfbc97;
+            padding: 12px 10px;
+            vertical-align: top;
+        }
+
+        th {
+            background-color: #dfcfb5;
+            font-weight: bold;
+            text-align: center;
+            color: #382812;
+        }
+
+        td:first-child {
+            font-weight: 600;
+            width: 30%;
+        }
+
+        /* تنسيق الكود */
+        pre, code {
+            background: #f3efdf;
+            font-family: 'Courier New', monospace;
+            border: 1px solid #ddceb0;
+            padding: 12px;
+            display: block;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            margin: 15px 0;
+            font-size: 13px;
+            border-radius: 6px;
+        }
+
+        /* تصنيفات خاصة بالمايند ماب */
+        .mindmap-block {
+            background: #faf5e9;
+            padding: 15px 20px;
+            border-left: 4px solid #b38f6b;
+            margin: 20px 0;
+        }
+
+        .subcat {
+            margin-top: 12px;
+            margin-left: 20px;
+            font-weight: 500;
+        }
+
+        hr {
+            border: none;
+            height: 1px;
+            background: linear-gradient(to right, transparent, #c6b086, transparent);
+            margin: 20px 0;
+        }
+        strong {
+            color: #7b3f1a;
+        }
+        .badge-tech {
+            background: #e3d5bd;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: normal;
+        }
+    </style>
+</head>
+<body>
+<div class="document-wrapper">
+    <div class="header">
+        <h1>📘 PROJECT MIND MAP <br><small>Gas Pump Spare Parts System</small></h1>
+        <div class="date">🗓️ خريطة متكاملة للمشروع | تقنية PHP مع أعلى أداء وأمان | أبريل 2026</div>
+        <div style="margin-top: 10px; font-style:italic;">Classic Architecture + Egyptian Arabic Translation بعد كل نقطة</div>
+    </div>
+
+    <!-- القسم 1: المقدمة وتأكيد استخدام PHP -->
+    <h2>🔧 1. Core Technology Decision: PHP Stack</h2>
+    <div class="point-with-ar">
+        <div class="english-text"><strong>✔ Backend Framework:</strong> Laravel 11 with Octane (Swoole/RoadRunner) → high concurrency, in-memory app.</div>
+        <div class="arabic-translate">✔ إطار العمل الخلفي: لارافيل 11 مع أوكتين — أداء عالي جدًا، التطبيق يعمل في الذاكرة لسرعة فائقة.</div>
+    </div>
+    <div class="point-with-ar">
+        <div class="english-text"><strong>✔ Database:</strong> PostgreSQL 16 + Redis for caching, queues, real-time locks.</div>
+        <div class="arabic-translate">✔ قاعدة البيانات: بوستجريSQL 16 + ريديس للتخزين المؤقت والطوابير والأقفال اللحظية لمنع تضارب المخزون.</div>
+    </div>
+    <div class="point-with-ar">
+        <div class="english-text"><strong>✔ Multi-tasking & Queues:</strong> Laravel Horizon (Redis driver) — manage multiple workers, job balancing.</div>
+        <div class="arabic-translate">✔ تعدد المهام: لارافيل هورايزون — إدارة عدة عمال (workers) لتنفيذ مهام مثل التقارير وإشعارات المخزون في الخلفية دون تأخير.</div>
+    </div>
+    <div class="point-with-ar">
+        <div class="english-text"><strong>✔ Real-time updates:</strong> Laravel Reverb (WebSockets) for live stock & sales dashboard.</div>
+        <div class="arabic-translate">✔ التحديث الفوري: لارافيل ريفيرب (ويب سوكيت) لتحديث المخزون مباشرة بدون إعادة تحميل الصفحة.</div>
+    </div>
+    <div class="point-with-ar">
+        <div class="english-text"><strong>✔ Security:</strong> Laravel Sanctum (API tokens), CSRF, XSS protection, encrypted data, rate limiting & 2FA ready.</div>
+        <div class="arabic-translate">✔ الأمان: سانكتوم للتوكنات، حماية CSRF وXSS، تشفير البيانات، تحديد معدل الطلبات، ودعم التحقق بخطوتين.</div>
+    </div>
+    <div class="point-with-ar">
+        <div class="english-text"><strong>✔ Frontend:</strong> React + TypeScript + TanStack Query + Tailwind (DaisyUI). Real-time via Laravel Echo.</div>
+        <div class="arabic-translate">✔ الواجهة الأمامية: رياكت + تايب سكريبت + TanStack Query لإدارة البيانات وخادم فعال، وتصميم كلاسيكي حديث.</div>
+    </div>
+
+    <!-- جدول مقارنة سريع -->
+    <h3>📊 Performance & Security Features Summary / ملخص الأداء والأمان</h3>
+    <table>
+        <thead>
+            <tr><th>Feature / الميزة</th><th>PHP/Laravel Implementation / التطبيق بلارافيل</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>⚡ High Performance</td><td>Laravel Octane + Swoole + Redis caching → 10x faster than traditional PHP. / أسرع بعشر مرات من PHP التقليدي</td></tr>
+            <tr><td>🔐 Multi-level security</td><td>Encrypted sessions, database row-level security, JWT/Sanctum, activity logs. / تشفير الجلسات، سجلات التدقيق، صلاحيات دقيقة</td></tr>
+            <tr><td>🧩 Multi-tasking</td><td>Background jobs (Horizon) for stock reconciliation, invoices, backups. / مهام خلفية لتسوية المخزون والفواتير والنسخ الاحتياطي</td></tr>
+            <tr><td>🔄 Real-time POS</td><td>WebSockets (Reverb) show instant stock deduction when cashier sells. / خصم المخزون لحظي بمجرد البيع</td></tr>
+        </tbody>
+    </table>
+
+    <!-- مخطط العقل الرئيسي (Mind Map) -->
+    <h2>🗺️ 2. Full Project Mind Map (Arabic/English)</h2>
+    <div class="mindmap-block">
+        <strong>📌 GAS PUMP SPARE PARTS SYSTEM — Laravel + React</strong>
+        <div class="subcat">
+            🔹 <strong>1. Inventory Management / إدارة المخزون</strong>
+            <div class="arabic-translate" style="background:transparent; padding:0 0 0 15px;">• تتبع حركة الداخل/الخارج، تنبيهات الحد الأدنى، ترقيم دفعات (Batch/Lot) للأجزاء المطاطية.<br>
+            • Barcode/QR generation for each part number. / إنشاء باركود لكل قطعة غيار.
+            </div>
+        </div>
+        <div class="subcat">
+            🔹 <strong>2. Sales Management (POS) / إدارة المبيعات</strong>
+            <div class="arabic-translate" style="background:transparent; padding:0 0 0 15px;">• فواتير سريعة، بحث برقم القطعة، إدارة العملاء، حدود ائتمانية، مرتجعات وضمان.<br>
+            • Real-time Stock deduction via WebSocket. / خصم المخزون لحظي وإشعار الطباعة.
+            </div>
+        </div>
+        <div class="subcat">
+            🔹 <strong>3. Reporting Dashboard / لوحة التقارير</strong>
+            <div class="arabic-translate">• تقارير المخزون الراكد، مبيعات اليوم، أفضل 10 قطع، أداء الموردين، سجل التعديلات.</div>
+        </div>
+        <div class="subcat">
+            🔹 <strong>4. Administration & Security / الإدارة والأمان المشدد</strong>
+            <div class="arabic-translate">• أدوار مدير/أمين مخزن/كاشير، تفعيل 2FA، تسجيل جميع العمليات الحساسة، تحديد صلاحيات الأعمدة.</div>
+        </div>
+        <div class="subcat">
+            🔹 <strong>5. Multi‑tasking architecture / بنية تعدد المهام</strong>
+            <div class="arabic-translate">• Queue workers: High priority (sales), medium (invoices PDF), low (email digests).<br>
+            • Job batching for end-of-day reports. / تجميع المهام لتقارير نهاية اليوم.
+            </div>
+        </div>
+        <div class="subcat">
+            🔹 <strong>6. Performance Layer / طبقة الأداء العالي</strong>
+            <div class="arabic-translate">• Redis Cache for part numbers, pagination for inventory, database indexes (part_number, sale_date).</div>
+        </div>
+    </div>
+
+    <!-- تفاصيل أعمق للنقاط الرئيسية مع الترجمة لكل نقطة فرعية -->
+    <h2>⚙️ 3. In-Depth Technical Blueprint (PHP Edition)</h2>
+    <h3>📦 Stock & Concurrency Control / التحكم في التزاحم ومنع البيع الزائد</h3>
+    <div class="point-with-ar">
+        <div class="english-text"><strong>✔ Atomic Locks using PostgreSQL row-level locking:</strong> FOR UPDATE inside transaction.</div>
+        <div class="arabic-translate">✔ أقفال ذرية على مستوى الصف في PostgreSQL — داخل المعاملة نستخدم lockForUpdate() لمنع بيع نفس القطعة مرتين.</div>
+    </div>
+    <div class="point-with-ar">
+        <div class="english-text"><strong>✔ Redis distributed lock for multi-server:</strong> prevent race conditions.</div>
+        <div class="arabic-translate">✔ قفل موزع باستخدام ريديس في حالة وجود أكثر من سيرفر، يضمن عدم تنفيذ عملية البيع بشكل متداخل.</div>
+    </div>
+    
+    <h3>📄 Report Generation Asynchronous / التقارير غير المتزامنة</h3>
+    <div class="point-with-ar">
+        <div class="english-text"><strong>Queued jobs:</strong> Long reports (e.g., yearly sales) dispatched to Horizon, user gets notification when ready.</div>
+        <div class="arabic-translate">✔ يتم تحميل التقارير الثقيلة عبر الطوابير، يقوم Horizon بتنفيذها خلف الكواليس ويصلك إشعار بتحميل الملف PDF.</div>
+    </div>
+    
+    <h3>🔐 Security Hardening Specifics / تفاصيل تعزيز الأمان</h3>
+    <div class="point-with-ar">
+        <div class="english-text"><strong>✔ Laravel’s built-in encryption</strong> for sensitive fields (customer phone, address).</div>
+        <div class="arabic-translate">✔ تشفير الحساسة مثل هاتف العميل باستخدام Laravel Encryption (AES-256).</div>
+    </div>
+    <div class="point-with-ar">
+        <div class="english-text"><strong>✔ Audit logs for all stock changes</strong> — who changed quantity, from which IP, timestamp.</div>
+        <div class="arabic-translate">✔ سجلات تدقيق لكل عملية تغيير مخزون: اسم المستخدم، عنوان IP، التاريخ والوقت.</div>
+    </div>
+    <div class="point-with-ar">
+        <div class="english-text"><strong>✔ Rate limiting per user role</strong> — API throttling to avoid DoS.</div>
+        <div class="arabic-translate">✔ تحديد عدد الطلبات لكل صلاحية (مثلاً الكاشير 100 طلب في الدقيقة) لمنع هجمات الحرمان من الخدمة.</div>
+    </div>
+
+    <!-- جزء خاص بمعالجة PHP متعددة المهام -->
+    <h2>🔄 4. Multi‑tasking Architecture with PHP / معمارية تعدد المهام</h2>
+    <div class="point-with-ar">
+        <div class="english-text"><strong>Laravel Horizon Dashboard</strong> to monitor failed jobs, retry, balancing 20+ queues.</div>
+        <div class="arabic-translate">✔ لوحة تحكم هورايزون لمراقبة قوائم الانتظار، إعادة المحاولات الفاشلة، وموازنة المهام بين 20 عامل.</div>
+    </div>
+    <div class="point-with-ar">
+        <div class="english-text"><strong>Schedule tasks (laravel scheduler)</strong> – Daily stock snapshot, weekly dead stock report.</div>
+        <div class="arabic-translate">✔ مهام مجدولة (Cron داخل لارافيل) تعمل يومياً لالتقاط صورة للمخزون، وإشعار المخزون قليل الحركة أسبوعياً.</div>
+    </div>
+    <div class="point-with-ar">
+        <div class="english-text"><strong>Reverb WebSockets server</strong> – broadcasting stock updates, live notifications for cashiers.</div>
+        <div class="arabic-translate">✔ خادم ريفيرب لبث التحديثات: أي عملية بيع تقلل المخزون تنعكس فوراً على شاشة أمين المخزن والكاشير.</div>
+    </div>
+
+    <h2>📈 5. Example: Database schema mind‑map (PostgreSQL)</h2>
+    <div class="mindmap-block">
+        <strong>Main tables / الجداول الرئيسية:</strong>
+        <ul style="margin-top:8px;">
+            <li><strong>parts</strong> (id, part_number unique, description, stock_quantity, reorder_level, supplier_id, specs JSON) <span class="arabic-translate">– قطع الغيار، الرقم الفريد، كمية المخزون، الحد الأدنى، مواصفات بصيغة JSON</span></li>
+            <li><strong>stock_movements</strong> (part_id, user_id, quantity_change, type: sale/purchase/adjustment, created_at) <span class="arabic-translate">– حركة المخزون (سحب/إضافة/تعديل)</span></li>
+            <li><strong>sales_invoices</strong> (customer_id, total_amount, invoice_date, status) <span class="arabic-translate">– فواتير البيع</span></li>
+            <li><strong>invoice_items</strong> (sale_id, part_id, quantity, unit_price) <span class="arabic-translate">– بنود الفاتورة</span></li>
+            <li><strong>users</strong> with roles & permissions, <strong>audit_logs</strong> for critical actions.</li>
+        </ul>
+    </div>
+    
+    <!-- نصائح الأداء -->
+    <h2>⚡ 6. High Performance Tuning (PHP specific)</h2>
+    <div class="point-with-ar">
+        <div class="english-text">✅ Enable OPcache JIT (PHP 8.3) → faster script execution.</div>
+        <div class="arabic-translate">✅ تفعيل JIT في OPcache لتسريع تنفيذ الأكواد بنسبة تتراوح بين 20-30%.</div>
+    </div>
+    <div class="point-with-ar">
+        <div class="english-text">✅ Use Laravel Octane with Swoole to keep application in memory, handle thousands of concurrent requests.</div>
+        <div class="arabic-translate">✅ استخدام Octane مع Swoole يبقي التطبيق محمّلاً في الذاكرة ويستطيع تلبية آلاف الطلبات المتزامنة.</div>
+    </div>
+    <div class="point-with-ar">
+        <div class="english-text">✅ Database indexing strategy: composite indexes on (part_number, supplier_id) and sale_date.</div>
+        <div class="arabic-translate">✅ الفهرسة المركبة على أعمدة part_number وsupplier_id وsale_date لتسريع عمليات البحث.</div>
+    </div>
+    <div class="point-with-ar">
+        <div class="english-text">✅ Pagination with cursor (keyset) for large inventory of +50k spare parts.</div>
+        <div class="arabic-translate">✅ ترقيم باستخدام المؤشر (cursor) لتصفح آلاف قطع الغيار بدون تحميل بطيء.</div>
+    </div>
+
+    <!-- خاتمة عملية مع توصيات -->
+    <h2>✅ 7. Summary: Why PHP achieves your requirements</h2>
+    <div class="point-with-ar">
+        <div class="english-text"><strong>Highest performance:</strong> Laravel+Octane+Redis outperforms many traditional PHP stacks.</div>
+        <div class="arabic-translate">✔ أعلى أداء: لارافيل مع أوكتين وريديس يقدم زمن استجابة منخفض جدًا.</div>
+    </div>
+    <div class="point-with-ar">
+        <div class="english-text"><strong>Multi‑tasking:</strong> Horizon, queues, schedules, WebSockets. Full server‑side background handling.</div>
+        <div class="arabic-translate">✔ تعدد المهام: هورايزون، الطوابير، والجدولة تغطي جميع الاحتياجات دون تدخل المستخدم.</div>
+    </div>
+    <div class="point-with-ar">
+        <div class="english-text"><strong>Highest security:</strong> Encryption, 2FA, SQL injection impossible, audit trail, role-based policies.</div>
+        <div class="arabic-translate">✔ أعلى مستويات الأمان: تشفير كامل، التحقق بخطوتين، حماية من حقن SQL، وسجلات تدقيق صارمة.</div>
+    </div>
+    <div class="point-with-ar">
+        <div class="english-text"><strong>All server-side functions:</strong> Business logic, report generation, PDF creation, stock reconciliation → all in Laravel backend.</div>
+        <div class="arabic-translate">✔ جميع الوظائف من جهة الخادم: منطق الأعمال، التقارير، الفواتير، تسوية المخزون كلها تعالج في الخلفية (PHP/Laravel).</div>
+    </div>
+
+    <hr>
+    <div style="background: #f5ede0; padding: 18px; border-radius: 12px; margin: 30px 0;">
+        <p style="font-size: 1.1rem;"><strong>📌 خريطة ذهنية مع كل التفاصيل التقنية – </strong> Egyptian Arabic translation provided for every technical item, classic style suitable for official documentation and printing as PDF.</p>
+        <p style="margin-top:10px;">✅ <strong>Recommendation:</strong> Save this HTML file, open in Chrome → Print → "Save as PDF" → تحصل على ملف PDF نقي الاحترافية.</p>
+        <p style="margin-top:8px;">✅ <strong>Next steps:</strong> Database migration scripts, Laravel project boilerplate with Horizon & Reverb, Docker compose (PHP, Postgres, Redis, Nginx) ready for deployment.</p>
+    </div>
+
+    <div class="footer">
+        <span>Project Mind Map — Gas Pump Spare Parts Management | Designed with Classic Style &amp; Arabic Translation (Egyptian dialect / فصحى مبسطة)</span><br>
+        <span>📄 PDF generated via browser print | Version 1.0 – High Performance, Multi-tasking, Hardened Security</span>
+    </div>
+</div>
+</body>
+</html>
