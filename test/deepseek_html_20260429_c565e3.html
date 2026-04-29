@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Push Notification - Android Chrome Fixed ✅</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 1.5rem;
+    }
+
+    .container {
+      background: white;
+      border-radius: 2rem;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      max-width: 500px;
+      width: 100%;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 0.5rem;
+      font-size: 1.8rem;
+    }
+
+    .subtitle {
+      color: #666;
+      margin-bottom: 2rem;
+      font-size: 0.9rem;
+    }
+
+    .notification-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 1rem 2rem;
+      font-size: 1.2rem;
+      font-weight: bold;
+      border-radius: 3rem;
+      cursor: pointer;
+      width: 100%;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .notification-btn:active {
+      transform: scale(0.97);
+    }
+
+    .notification-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .status-card {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      border-radius: 1rem;
+      background: #f5f5f5;
+      text-align: left;
+    }
+
+    .status-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem;
+      margin: 0.5rem 0;
+      background: white;
+      border-radius: 0.5rem;
+    }
+
+    .status-label {
+      font-weight: bold;
+      color: #555;
+    }
+
+    .status-value {
+      font-family: monospace;
+      font-size: 0.9rem;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 1rem;
+      font-size: 0.8rem;
+      font-weight: bold;
+    }
+
+    .badge-granted {
+      background: #4caf50;
+      color: white;
+    }
+
+    .badge-denied {
+      background: #f44336;
+      color: white;
+    }
+
+    .badge-default {
+      background: #ff9800;
+      color: white;
+    }
+
+    .info-box {
+      margin-top: 1rem;
+      padding: 0.8rem;
+      background: #e3f2fd;
+      border-left: 4px solid #2196f3;
+      border-radius: 0.5rem;
+      font-size: 0.8rem;
+      text-align: left;
+    }
+
+    .info-box strong {
+      color: #1976d2;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .sending {
+      animation: pulse 0.5s ease-in-out;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>🔔 Push Notifications</h1>
+  <div class="subtitle">Works on Android Chrome + Desktop</div>
+  
+  <button id="notifyBtn" class="notification-btn">
+    <span>🔔</span> Send Notification
+  </button>
+  
+  <div class="status-card">
+    <div class="status-item">
+      <span class="status-label">📱 Permission Status:</span>
+      <span class="status-value" id="permissionStatus">Checking...</span>
+    </div>
+    <div class="status-item">
+      <span class="status-label">⚙️ Service Worker:</span>
+      <span class="status-value" id="swStatus">Checking...</span>
+    </div>
+    <div class="status-item">
+      <span class="status-label">🌐 Browser:</span>
+      <span class="status-value" id="browserInfo">Detecting...</span>
+    </div>
+  </div>
+  
+  <div class="info-box">
+    <strong>📱 Android Chrome Fix:</strong><br>
+    • Uses Service Worker for proper push notifications<br>
+    • Click button → Allow permission → Receive notifications<br>
+    • Works on Chrome, Firefox, Edge, Safari (iOS 16.4+)<br>
+    <strong>⚠️ Note:</strong> First click asks permission, subsequent clicks send notifications
+  </div>
+</div>
+
+<script>
+  // Register Service Worker
+  let swRegistration = null;
+  
+  async function registerServiceWorker() {
+    if (!('serviceWorker' in navigator)) {
+      console.log('Service Worker not supported');
+      document.getElementById('swStatus').innerHTML = '<span class="badge badge-denied">❌ Not supported</span>';
+      return false;
+    }
+    
+    try {
+      // Create a simple service worker script
+      const swCode = `
+        self.addEventListener('install', function(event) {
+          console.log('Service Worker installed');
+          self.skipWaiting();
+        });
+        
+        self.addEventListener('activate', function(event) {
+          console.log('Service Worker activated');
+          event.waitUntil(clients.claim());
+        });
+        
+        self.addEventListener('notificationclick', function(event) {
+          event.notification.close();
+          event.waitUntil(
+            clients.matchAll({type: 'window', includeUncontrolled: true})
+              .then(function(clientList) {
+                if (clientList.length > 0) {
+                  return clientList[0].focus();
+                }
+                return clients.openWindow('/');
+              })
+          );
+        });
+      `;
+      
+      // Create a blob URL for the service worker
+      const blob = new Blob([swCode], {type: 'application/javascript'});
+      const swUrl = URL.createObjectURL(blob);
+      
+      const registration = await navigator.serviceWorker.register(swUrl);
+      console.log('Service Worker registered successfully:', registration);
+      
+      // Clean up the blob URL after registration
+      URL.revokeObjectURL(swUrl);
+      
+      swRegistration = registration;
+      document.getElementById('swStatus').innerHTML = '<span class="badge badge-granted">✅ Active</span>';
+      return true;
+    } catch (error) {
+      console.error('Service Worker registration failed:', error);
+      document.getElementById('swStatus').innerHTML = '<span class="badge badge-denied">❌ Failed</span>';
+      return false;
+    }
+  }
+  
+  // Send notification using Service Worker (works on Android Chrome)
+  async function sendNotificationWithServiceWorker() {
+    if (!swRegistration) {
+      console.log('No service worker registration, attempting to register...');
+      await registerServiceWorker();
+      if (!swRegistration) {
+        throw new Error('Service Worker not available');
+      }
+    }
+    
+    const options = {
+      body: `🎉 Notification sent at ${new Date().toLocaleTimeString()}! Click to return to app.`,
+      icon: 'https://cdn-icons-png.flaticon.com/512/633/633777.png',
+      badge: 'https://cdn-icons-png.flaticon.com/512/190/190411.png',
+      vibrate: [200, 100, 200],
+      data: {
+        timestamp: Date.now(),
+        url: window.location.href
+      },
+      tag: 'push-notification-' + Date.now(),
+      requireInteraction: false,
+      silent: false
+    };
+    
+    try {
+      await swRegistration.showNotification('🔔 Push Notification Demo', options);
+      console.log('Notification sent successfully via Service Worker');
+      return true;
+    } catch (error) {
+      console.error('Error showing notification:', error);
+      throw error;
+    }
+  }
+  
+  // Fallback: Simple Notification API (for browsers that support it)
+  function sendSimpleNotification() {
+    if (Notification.permission !== 'granted') {
+      throw new Error('Permission not granted');
+    }
+    
+    const options = {
+      body: `🎉 Notification at ${new Date().toLocaleTimeString()}`,
+      icon: 'https://cdn-icons-png.flaticon.com/512/633/633777.png',
+      vibrate: [200, 100, 200]
+    };
+    
+    const notification = new Notification('🔔 Push Notification Demo', options);
+    notification.onclick = () => {
+      window.focus();
+      notification.close();
+    };
+    
+    setTimeout(() => notification.close(), 5000);
+    return true;
+  }
+  
+  // Main send function with fallback
+  async function sendPushNotification() {
+    const btn = document.getElementById('notifyBtn');
+    const originalText = btn.innerHTML;
+    
+    // Show sending state
+    btn.innerHTML = '<span>⏳</span> Sending...';
+    btn.classList.add('sending');
+    
+    try {
+      // Try Service Worker method first (works on Android Chrome)
+      if (swRegistration && swRegistration.showNotification) {
+        await sendNotificationWithServiceWorker();
+      } 
+      // Fallback to regular Notification API
+      else if (window.Notification && Notification.permission === 'granted') {
+        sendSimpleNotification();
+      }
+      else {
+        throw new Error('No notification method available');
+      }
+      
+      // Visual feedback
+      btn.style.background = 'linear-gradient(135deg, #4caf50 0%, #45a049 100%)';
+      setTimeout(() => {
+        btn.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+      }, 300);
+      
+    } catch (error) {
+      console.error('Failed to send notification:', error);
+      btn.style.background = 'linear-gradient(135deg, #f44336 0%, #d32f2f 100%)';
+      setTimeout(() => {
+        btn.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+      }, 500);
+    } finally {
+      setTimeout(() => {
+        btn.innerHTML = originalText;
+        btn.classList.remove('sending');
+      }, 500);
+    }
+  }
+  
+  // Request permission and handle button click
+  async function handleButtonClick() {
+    // Check if browser supports notifications
+    if (!window.Notification) {
+      alert('Your browser does not support notifications');
+      return;
+    }
+    
+    const permission = Notification.permission;
+    
+    // If already granted, send notification
+    if (permission === 'granted') {
+      await sendPushNotification();
+      return;
+    }
+    
+    // If denied, show instructions
+    if (permission === 'denied') {
+      alert('⚠️ Notification permission was denied.\n\nTo enable:\n1. Click the lock/info icon in address bar\n2. Find "Notifications" setting\n3. Allow notifications\n4. Refresh the page');
+      return;
+    }
+    
+    // Request permission
+    try {
+      const newPermission = await Notification.requestPermission();
+      
+      if (newPermission === 'granted') {
+        // Make sure service worker is ready
+        if (!swRegistration) {
+          await registerServiceWorker();
+        }
+        updatePermissionUI();
+        // Send first notification after permission granted
+        await sendPushNotification();
+      } else {
+        updatePermissionUI();
+        alert('You denied notification permission. You can change this in browser settings.');
+      }
+    } catch (error) {
+      console.error('Error requesting permission:', error);
+      alert('Error requesting notification permission');
+    }
+  }
+  
+  // Update UI with current status
+  function updatePermissionUI() {
+    const permissionStatus = document.getElementById('permissionStatus');
+    const permission = Notification.permission;
+    
+    if (permission === 'granted') {
+      permissionStatus.innerHTML = '<span class="badge badge-granted">✅ Granted</span>';
+    } else if (permission === 'denied') {
+      permissionStatus.innerHTML = '<span class="badge badge-denied">❌ Denied</span>';
+    } else {
+      permissionStatus.innerHTML = '<span class="badge badge-default">⏳ Not set (click button)</span>';
+    }
+  }
+  
+  // Detect browser info
+  function detectBrowser() {
+    const ua = navigator.userAgent;
+    let browser = 'Unknown';
+    
+    if (ua.includes('Chrome')) {
+      browser = 'Google Chrome';
+    } else if (ua.includes('Firefox')) {
+      browser = 'Mozilla Firefox';
+    } else if (ua.includes('Safari') && !ua.includes('Chrome')) {
+      browser = 'Apple Safari';
+    } else if (ua.includes('Edg')) {
+      browser = 'Microsoft Edge';
+    }
+    
+    const isAndroid = /Android/i.test(ua);
+    const browserInfo = `${browser}${isAndroid ? ' (Android)' : ''}`;
+    document.getElementById('browserInfo').innerHTML = browserInfo;
+  }
+  
+  // Initialize the app
+  async function init() {
+    detectBrowser();
+    updatePermissionUI();
+    
+    // Register service worker if notifications are supported
+    if ('Notification' in window && 'serviceWorker' in navigator) {
+      await registerServiceWorker();
+    } else if (!('Notification' in window)) {
+      document.getElementById('permissionStatus').innerHTML = '<span class="badge badge-denied">❌ Not supported</span>';
+      document.getElementById('notifyBtn').disabled = true;
+    }
+    
+    // Important: For Safari on iOS, service worker registration might be limited
+    // but the regular Notification API works on iOS 16.4+
+    if (!('serviceWorker' in navigator)) {
+      document.getElementById('swStatus').innerHTML = '<span class="badge badge-default">⚠️ Limited support</span>';
+    }
+  }
+  
+  // Bind click event
+  const btn = document.getElementById('notifyBtn');
+  btn.addEventListener('click', handleButtonClick);
+  
+  // Start the app
+  init();
+</script>
+</body>
+</html>
