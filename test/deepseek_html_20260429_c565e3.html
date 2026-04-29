@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Push Notification Demo · One‑Click Notifications</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none; /* prevents accidental text selection on button double-click */
+    }
+
+    body {
+      background: linear-gradient(145deg, #f0f4fe 0%, #d9e2f2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
+      padding: 1.5rem;
+    }
+
+    /* Card container */
+    .card {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(2px);
+      border-radius: 3rem;
+      box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.35), 0 1px 2px rgba(0, 0, 0, 0.05);
+      width: 100%;
+      max-width: 540px;
+      padding: 2.2rem 2rem 2.8rem;
+      transition: all 0.2s ease;
+      text-align: center;
+      border: 1px solid rgba(255, 255, 255, 0.6);
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 600;
+      background: linear-gradient(135deg, #1A2A4F, #2C3E66);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      letter-spacing: -0.3px;
+      margin-bottom: 0.5rem;
+    }
+
+    .sub {
+      color: #4a5b7a;
+      font-weight: 500;
+      margin-bottom: 2rem;
+      border-bottom: 2px dotted #cbd5e1;
+      display: inline-block;
+      padding-bottom: 0.4rem;
+    }
+
+    /* main push button */
+    .push-btn {
+      background: radial-gradient(circle at 30% 10%, #1e2f4b, #0f1a2f);
+      border: none;
+      width: 100%;
+      padding: 1.2rem 1.5rem;
+      font-size: 1.6rem;
+      font-weight: 600;
+      font-family: inherit;
+      color: white;
+      border-radius: 4rem;
+      cursor: pointer;
+      box-shadow: 0 12px 18px -8px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      letter-spacing: 0.5px;
+    }
+
+    .push-btn:active {
+      transform: scale(0.97);
+      box-shadow: 0 6px 12px -5px rgba(0, 0, 0, 0.4);
+    }
+
+    .push-btn:focus-visible {
+      outline: 3px solid #f5b042;
+      outline-offset: 3px;
+    }
+
+    /* status area */
+    .status-area {
+      background: #eef3fc;
+      margin-top: 2rem;
+      border-radius: 1.8rem;
+      padding: 0.9rem 1rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #1e2f4a;
+      transition: all 0.2s;
+      border: 1px solid #cddfef;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: space-between;
+    }
+
+    .status-badge {
+      background: white;
+      border-radius: 40px;
+      padding: 0.3rem 1rem;
+      font-family: monospace;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #0c4e6e;
+      box-shadow: inset 0 0 0 1px #cbdbe6, 0 1px 2px rgba(0,0,0,0.02);
+    }
+
+    .status-message {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 10px;
+      background: #9aa9c1;
+      display: inline-block;
+      transition: background 0.2s;
+    }
+
+    .dot.granted {
+      background: #2b9348;
+      box-shadow: 0 0 0 2px #b9f5c4;
+    }
+
+    .dot.denied {
+      background: #d62828;
+    }
+
+    .dot.default {
+      background: #ffb347;
+    }
+
+    .info-note {
+      font-size: 0.75rem;
+      margin-top: 1.5rem;
+      background: #f9fafc;
+      padding: 0.8rem 1rem;
+      border-radius: 1.5rem;
+      color: #3c4b66;
+      border-left: 4px solid #2c6e9e;
+      text-align: left;
+    }
+
+    .info-note code {
+      background: #e2e8f0;
+      padding: 0.2rem 0.4rem;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+
+    button:disabled {
+      opacity: 0.65;
+      transform: none !important;
+      cursor: not-allowed;
+      filter: grayscale(0.04);
+    }
+
+    @media (max-width: 480px) {
+      .card {
+        padding: 1.8rem 1.2rem;
+      }
+      .push-btn {
+        font-size: 1.3rem;
+        padding: 1rem;
+      }
+      h1 {
+        font-size: 1.7rem;
+      }
+    }
+
+    /* subtle animation */
+    @keyframes gentlePulse {
+      0% { opacity: 0.7; }
+      100% { opacity: 1; }
+    }
+    .toast-icon {
+      font-size: 1.3rem;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h1>🔔 Push Notifications</h1>
+  <div class="sub">one click · instant alert</div>
+
+  <!-- Main trigger button -->
+  <button id="notifyBtn" class="push-btn">
+    <span>🔔</span> Send notification
+  </button>
+
+  <!-- live permission + status display -->
+  <div class="status-area" id="statusArea">
+    <div class="status-message">
+      <span id="statusDot" class="dot default"></span>
+      <span id="permissionText">Checking permission...</span>
+    </div>
+    <div class="status-badge" id="stateBadge">⏳ awaiting</div>
+  </div>
+
+  <div class="info-note">
+    💡 <strong>How to test</strong><br>
+    • Click the button → browser asks for permission → <strong>Allow</strong><br>
+    • After granting, every click sends a <strong>real push-style notification</strong><br>
+    • Works on modern desktop & mobile (Chrome, Edge, Firefox, Safari, etc.)<br>
+    <code>⚠️ Safari requires user interaction first → button click triggers permission + notification.</code>
+  </div>
+</div>
+
+<script>
+  (function() {
+    // ----- DOM elements -----
+    const notifyButton = document.getElementById('notifyBtn');
+    const permissionTextSpan = document.getElementById('permissionText');
+    const statusDot = document.getElementById('statusDot');
+    const stateBadge = document.getElementById('stateBadge');
+
+    // ----- helper: update UI based on current permission state -----
+    function updatePermissionUI() {
+      // use Notification.permission (modern standard)
+      const currentState = Notification.permission;
+      
+      // update dot and texts
+      if (currentState === 'granted') {
+        permissionTextSpan.innerText = '✅ Notifications: Allowed';
+        statusDot.className = 'dot granted';
+        stateBadge.innerHTML = '🔔 GRANTED · ready';
+        stateBadge.style.background = '#e0f2e9';
+        // enable button fully (granted)
+        notifyButton.disabled = false;
+      } else if (currentState === 'denied') {
+        permissionTextSpan.innerText = '❌ Notifications: Blocked';
+        statusDot.className = 'dot denied';
+        stateBadge.innerHTML = '🚫 DENIED · cannot send';
+        stateBadge.style.background = '#ffe6e5';
+        // Disable button because notification cannot be sent
+        notifyButton.disabled = true;
+        // but provide visual feedback: disabled + tooltip style
+        notifyButton.title = 'Notification permission denied. Please reset site settings.';
+      } else { // 'default' (prompt state)
+        permissionTextSpan.innerText = '⏳ Permission not set — click button to allow';
+        statusDot.className = 'dot default';
+        stateBadge.innerHTML = '🔘 PENDING · click to ask';
+        stateBadge.style.background = '#fff1cf';
+        notifyButton.disabled = false;   // button is clickable to request permission
+        notifyButton.title = 'Click to request notification permission and send alert';
+      }
+    }
+
+    // ----- Send a push-like notification (title + body + icon) -----
+    function sendPushNotification() {
+      // Safety check: only if granted actually sends visible notif
+      if (Notification.permission !== 'granted') {
+        // This situation shouldn't occur because we guard before calling,
+        // but double-check to avoid errors.
+        console.warn('Notification not granted, cannot send');
+        return false;
+      }
+
+      // --- Create rich notification content ---
+      const notificationTitle = '🔔 Hey there! Push notification';
+      const notificationOptions = {
+        body: `✨ You clicked the button at ${new Date().toLocaleTimeString()}. Notification delivered!`,
+        icon: 'https://cdn-icons-png.flaticon.com/512/633/633777.png', // fallback bell icon (reliable CDN)
+        badge: 'https://cdn-icons-png.flaticon.com/512/190/190411.png',
+        vibrate: [200, 100, 200],        // subtle vibration where supported (mobile)
+        silent: false,                    // make sound if system allows
+        tag: 'main-push-' + Date.now(),   // unique tag to avoid grouping every time
+        data: { timestamp: Date.now(), source: 'web-push-demo' }
+      };
+
+      // Use try-catch for unexpected errors (some browsers block custom icons but that's fine)
+      try {
+        const notification = new Notification(notificationTitle, notificationOptions);
+        
+        // Optional: add click handler for notification (bring page to focus)
+        notification.onclick = (event) => {
+          event.preventDefault();
+          window.focus();
+          notification.close();
+          // Optional extra: show a small console message but not intrusive
+        };
+        
+        // Auto close after 5 seconds to keep clean
+        setTimeout(() => {
+          notification.close();
+        }, 5000);
+        
+        return true;
+      } catch (err) {
+        console.error('Notification error:', err);
+        // fallback: maybe show an alert? but we prefer not to spam, just console.
+        return false;
+      }
+    }
+
+    // ----- handle main button action: request permission if needed, then notify -----
+    async function handleButtonClick() {
+      // Get current permission state
+      const permissionState = Notification.permission;
+      
+      // CASE 1: Permission already granted → just send notification
+      if (permissionState === 'granted') {
+        sendPushNotification();
+        // Optional micro feedback for user: update badge briefly? but not needed
+        // give subtle animation effect (button vibes)
+        notifyButton.style.transform = 'scale(0.98)';
+        setTimeout(() => { if (notifyButton) notifyButton.style.transform = ''; }, 120);
+        return;
+      }
+      
+      // CASE 2: Permission denied → can't send, alert user with polite message
+      if (permissionState === 'denied') {
+        // Show friendly in-status message because button already disabled but just in case
+        // but we also may show a temporary toast-like via status area? 
+        const originalMsg = permissionTextSpan.innerText;
+        permissionTextSpan.innerText = '⚠️ Notifications blocked. Update browser settings to allow.';
+        setTimeout(() => {
+          if (permissionTextSpan) updatePermissionUI(); // revert after 2 sec
+        }, 2000);
+        return;
+      }
+      
+      // CASE 3: Permission is 'default' (never asked or previously dismissed)
+      // We need to request permission. This will show browser native prompt.
+      if (permissionState === 'default') {
+        try {
+          // Show feedback that we are requesting
+          permissionTextSpan.innerText = '🔔 Requesting permission...';
+          stateBadge.innerHTML = '⌛ Asking ...';
+          
+          // Request notification permission
+          const permissionResult = await Notification.requestPermission();
+          
+          // Update UI after response
+          updatePermissionUI();
+          
+          // If user granted after prompt -> immediately send notification as a delight
+          if (permissionResult === 'granted') {
+            // small delay for UI consistency, then send
+            setTimeout(() => {
+              sendPushNotification();
+              // also update badge to show success
+              stateBadge.innerHTML = '✅ NOTIFICATION SENT!';
+              setTimeout(() => updatePermissionUI(), 1800);
+            }, 100);
+          } else if (permissionResult === 'denied') {
+            // show denial feedback
+            permissionTextSpan.innerText = '❌ Permission denied. Cannot send notifications.';
+            stateBadge.innerHTML = '🚫 Blocked';
+            setTimeout(() => updatePermissionUI(), 2000);
+          } else {
+            // dismissed / no choice? update anyway
+            updatePermissionUI();
+          }
+        } catch (err) {
+          console.error('Error requesting permission:', err);
+          updatePermissionUI();
+          permissionTextSpan.innerText = '⚠️ Error requesting permission. Check browser settings.';
+        }
+        return;
+      }
+      
+      // fallback (should never reach)
+      updatePermissionUI();
+    }
+
+    // ---- Additional helper to re-sync UI on page visibility & first load ----
+    function syncOnLoad() {
+      updatePermissionUI();
+      // Edge case: If permission is already granted and we are on load, we enable button
+      // Additionally, some browsers might allow pre-approved origins, but we just update UI
+      
+      // For extra safety: if permission === 'granted', test if service worker not needed anyway
+      // but the Notification API works without service worker (basic Notifications are fully supported)
+      // We also ensure the button's disabled state matches permission denied.
+      if (Notification.permission === 'denied') {
+        notifyButton.disabled = true;
+      } else {
+        notifyButton.disabled = false;
+      }
+    }
+
+    // ---- event binding ----
+    if (notifyButton) {
+      notifyButton.addEventListener('click', handleButtonClick);
+    }
+    
+    // Listen for permission changes if the user changes via browser settings? Not straightforward but we can re-evaluate on focus.
+    window.addEventListener('focus', () => {
+      // Each time window gets focus, sync the UI with latest permission state.
+      // Useful if user changes site permissions manually from browser settings.
+      updatePermissionUI();
+    });
+    
+    // Also run when page loads completely
+    window.addEventListener('DOMContentLoaded', syncOnLoad);
+    // immediate call if script loads after DOM ready (defensive)
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', syncOnLoad);
+    } else {
+      syncOnLoad();
+    }
+    
+    // optional: check if Notification API is supported at all, show friendly error if not
+    if (!window.Notification) {
+      const errorDiv = document.createElement('div');
+      errorDiv.style.marginTop = '1rem';
+      errorDiv.style.background = '#ffddd6';
+      errorDiv.style.padding = '0.8rem';
+      errorDiv.style.borderRadius = '2rem';
+      errorDiv.style.fontSize = '0.8rem';
+      errorDiv.style.fontWeight = 'bold';
+      errorDiv.innerText = '⚠️ Your browser does not support the Notifications API. Upgrade to a modern browser.';
+      document.querySelector('.card')?.appendChild(errorDiv);
+      notifyButton.disabled = true;
+      permissionTextSpan.innerText = '❌ Not supported in this browser';
+      stateBadge.innerHTML = 'unsupported';
+    }
+  })();
+</script>
+</body>
+</html>
