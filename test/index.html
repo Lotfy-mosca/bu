@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>✨ Just Girl Style · Zigzag Forever Timeline ✨ | 28/11/2024 → ∞</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(145deg, #fef2f5 0%, #ffe4eb 100%);
+            font-family: 'Segoe UI', 'Quicksand', 'Poppins', system-ui, -apple-system, 'Dancing Script', cursive;
+            padding: 2rem 1.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .vertical-timeline-container {
+            max-width: 1200px;
+            width: 100%;
+            background: rgba(255, 248, 250, 0.94);
+            backdrop-filter: blur(3px);
+            border-radius: 70px;
+            box-shadow: 0 30px 45px rgba(255, 105, 180, 0.18), 0 8px 20px rgba(0, 0, 0, 0.03);
+            padding: 2rem 1.8rem 2.5rem;
+            border: 1px solid rgba(255, 190, 210, 0.7);
+        }
+
+        .title-section {
+            text-align: center;
+            margin-bottom: 1.8rem;
+        }
+
+        .title-section h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #e85d8f, #f6a5c2);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sub {
+            font-size: 0.85rem;
+            color: #dc7a9e;
+            background: #fff0f5cc;
+            display: inline-block;
+            padding: 0.3rem 1.2rem;
+            border-radius: 60px;
+            margin-top: 8px;
+            font-weight: 500;
+        }
+
+        .forever-card {
+            background: #ffffffdd;
+            border-radius: 55px;
+            padding: 1rem 1rem;
+            margin: 15px 0 32px;
+            text-align: center;
+            border: 1px solid #ffd0dc;
+            box-shadow: 0 12px 22px rgba(230, 130, 160, 0.1);
+        }
+
+        .since-badge {
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            color: #d96f93;
+            font-weight: 500;
+        }
+
+        .start-date-glam {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #bc537a;
+            background: #fff0f6;
+            display: inline-block;
+            padding: 0.2rem 1rem;
+            border-radius: 50px;
+            margin: 6px 0 12px;
+        }
+
+        .big-numbers {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            row-gap: 0.8rem;
+            margin: 15px 0 8px;
+        }
+
+        .time-unit {
+            background: #fef4f8;
+            min-width: 75px;
+            padding: 8px 6px;
+            border-radius: 48px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(226, 120, 155, 0.08);
+        }
+
+        .time-unit .number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            font-family: 'Courier New', monospace;
+            color: #b8436b;
+            line-height: 1;
+        }
+
+        .time-unit .label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            font-weight: 600;
+            color: #dd7b9f;
+            margin-top: 5px;
+        }
+
+        .vertical-special-section {
+            margin: 30px 0 20px;
+            position: relative;
+        }
+
+        .timeline-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .timeline-header span {
+            background: #ffeef4;
+            padding: 6px 20px;
+            border-radius: 60px;
+            font-weight: 600;
+            color: #c05f85;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .timeline-wrapper {
+            display: flex;
+            justify-content: center;
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .vertical-line-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .timeline-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            position: relative;
+            margin: 20px 0;
+        }
+
+        .card-left {
+            flex: 1;
+            display: flex;
+            justify-content: flex-end;
+            padding-right: 30px;
+        }
+
+        .card-right {
+            flex: 1;
+            display: flex;
+            justify-content: flex-start;
+            padding-left: 30px;
+        }
+
+        .point-column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            width: 80px;
+        }
+
+        .vertical-marker {
+            width: 28px;
+            height: 28px;
+            background: #ff7bae;
+            border: 3px solid white;
+            border-radius: 50%;
+            box-shadow: 0 0 0 4px #ffb7cd, 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 5;
+            transition: all 0.2s;
+            margin: 0 auto;
+        }
+
+        .vertical-marker.special-glow {
+            background: #ff3b7f;
+            box-shadow: 0 0 0 4px #ffb0c8, 0 0 0 8px rgba(255, 140, 180, 0.2);
+            width: 32px;
+            height: 32px;
+        }
+
+        .vertical-marker.start-marker {
+            background: #c95884;
+            box-shadow: 0 0 0 4px #ffbed5, 0 0 0 8px rgba(201, 88, 132, 0.2);
+            width: 30px;
+            height: 30px;
+        }
+
+        .point-caption {
+            font-size: 0.7rem;
+            font-weight: 600;
+            background: #ffecf1dd;
+            padding: 3px 12px;
+            border-radius: 40px;
+            color: #b5456e;
+            margin-top: 8px;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .connector-line {
+            width: 4px;
+            background: linear-gradient(180deg, #ffbfd0, #ff9bbc);
+            border-radius: 4px;
+            margin: 5px auto;
+            transition: height 0.2s;
+        }
+
+        .detail-card {
+            background: #fff9fb;
+            backdrop-filter: blur(12px);
+            border-radius: 28px;
+            padding: 14px 20px;
+            width: 280px;
+            box-shadow: 0 18px 28px rgba(185, 70, 110, 0.18);
+            border: 1px solid #ffc0d4;
+            text-align: left;
+            transition: all 0.2s;
+        }
+
+        .detail-card .detail-date {
+            font-weight: 800;
+            color: #c94f7a;
+            font-size: 0.95rem;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .detail-card .detail-desc {
+            color: #7e4460;
+            line-height: 1.45;
+            font-weight: 500;
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+        }
+
+        .detail-card .detail-stats {
+            font-size: 0.75rem;
+            background: #fff0f5;
+            padding: 6px 10px;
+            border-radius: 24px;
+            margin-top: 8px;
+            color: #b9537a;
+            font-family: monospace;
+            display: inline-block;
+        }
+
+        .detail-heart {
+            margin-top: 8px;
+            font-size: 0.7rem;
+            color: #e28aae;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .extra-forever-note {
+            margin-top: 35px;
+            text-align: center;
+            font-size: 0.7rem;
+            color: #dd88aa;
+            background: #fff0f5;
+            border-radius: 40px;
+            padding: 10px;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.7rem;
+            color: #e5a1bc;
+        }
+
+        hr {
+            margin: 20px 0 10px;
+            border: 0.5px dashed #ffc0d2;
+        }
+
+        @media (max-width: 850px) {
+            .detail-card {
+                width: 220px;
+                padding: 10px 14px;
+            }
+            .card-left {
+                padding-right: 15px;
+            }
+            .card-right {
+                padding-left: 15px;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .timeline-row {
+                flex-direction: column;
+                margin: 30px 0;
+            }
+            .card-left, .card-right {
+                justify-content: center;
+                padding: 0;
+                margin-top: 15px;
+                width: 100%;
+            }
+            .card-left .detail-card, .card-right .detail-card {
+                width: 100%;
+                max-width: 320px;
+                margin: 0 auto;
+            }
+            .point-column {
+                margin: 10px 0;
+            }
+            .connector-line {
+                width: 3px;
+                margin: 10px auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="vertical-timeline-container">
+    <div class="title-section">
+        <h1>
+            <span>🌸</span> zigzag forever timeline <span>🎀</span>
+        </h1>
+        <div class="sub">✨ counting from 28/11/2024 — points with cards on left & right ✨</div>
+    </div>
+
+    <div class="forever-card">
+        <div class="since-badge">💖 since the magic started 💖</div>
+        <div class="start-date-glam">📅 28 / 11 / 2024</div>
+        <div class="big-numbers" id="liveCounter">
+            <div class="time-unit"><div class="number" id="yearsVal">0</div><div class="label">years</div></div>
+            <div class="time-unit"><div class="number" id="monthsVal">0</div><div class="label">months</div></div>
+            <div class="time-unit"><div class="number" id="weeksVal">0</div><div class="label">weeks</div></div>
+            <div class="time-unit"><div class="number" id="daysVal">0</div><div class="label">days</div></div>
+            <div class="time-unit"><div class="number" id="hoursVal">0</div><div class="label">hours</div></div>
+            <div class="time-unit"><div class="number" id="minutesVal">0</div><div class="label">minutes</div></div>
+            <div class="time-unit"><div class="number" id="secondsVal">0</div><div class="label">seconds</div></div>
+        </div>
+        <div class="extra-forever-note">✨ from 28 nov 2024 — until forever, second by second ✨</div>
+    </div>
+
+    <div class="vertical-special-section">
+        <div class="timeline-header">
+            <span>💗 every point tells a story · cards alternate sides 💗</span>
+        </div>
+        <div class="timeline-wrapper">
+            <div class="vertical-line-container" id="timelineContainer">
+                <!-- timeline rows will be dynamically inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <hr />
+    <footer>💕 between every point there's a line · details on right & left sides 💕<br>respecting years, months, weeks, days, hours, minutes, seconds</footer>
+</div>
+
+<script>
+    (function() {
+        const START_DATE = new Date(2024, 10, 28, 0, 0, 0, 0);
+
+        // Define all points: start + all special days (chronological order)
+        const pointsData = [
+            {
+                date: START_DATE,
+                description: "",
+                label: "🌟 البداية",
+                shortLabel: "🌟 START",
+                isStart: true
+            },
+            {
+                date: new Date(2025, 8, 7, 0, 0, 0, 0),      // 7 September 2025
+                description: "اول اعتراف ",
+                label: "💖 اول اعتراف",
+                shortLabel: "✨ اعتراف ✨",
+                isStart: false
+            },
+            {
+                date: new Date(2025, 8, 27, 0, 0, 0, 0),     // 27 September 2025
+                description: "اول رساله علي صراحه ",
+                label: "💌 اول رساله",
+                shortLabel: "📝 رساله صراحه",
+                isStart: false
+            },
+            {
+                date: new Date(2025, 9, 31, 0, 0, 0, 0),     // 31 October 2025
+                description: "اول 'بحبك'",
+                label: "💕 اول بحبك",
+                shortLabel: "💕 بحبك",
+                isStart: false
+            },
+            {
+                date: new Date(2026, 4, 11, 0, 0, 0, 0),     // 11 May 2026
+                description: "اول كلام مباشر بينا ",
+                label: "💬 اول كلام مباشر",
+                shortLabel: "💬 كلام مباشر",
+                isStart: false
+            }
+        ];
+
+        // Helper: duration WITHOUT hours/minutes/seconds for special days
+        function getDurationComponentsWithoutTime(fromDate, toDate) {
+            if (fromDate > toDate) return { years: 0, months: 0, weeks: 0, days: 0 };
+            
+            let years = toDate.getFullYear() - fromDate.getFullYear();
+            let months = toDate.getMonth() - fromDate.getMonth();
+            let days = toDate.getDate() - fromDate.getDate();
+
+            if (days < 0) {
+                months--;
+                let prevMonthLastDay = new Date(toDate.getFullYear(), toDate.getMonth(), 0).getDate();
+                days = prevMonthLastDay + days;
+            }
+            if (months < 0) {
+                years--;
+                months += 12;
+            }
+
+            let weeks = Math.floor(days / 7);
+            let remainderDays = days % 7;
+            
+            return { years, months, weeks, days: remainderDays };
+        }
+
+        // For the live counter (needs hours/minutes/seconds)
+        function getDurationComponentsFull(fromDate, toDate) {
+            if (fromDate > toDate) return { years: 0, months: 0, weeks: 0, days: 0, hours: 0, minutes: 0, seconds: 0 };
+            
+            let years = toDate.getFullYear() - fromDate.getFullYear();
+            let months = toDate.getMonth() - fromDate.getMonth();
+            let days = toDate.getDate() - fromDate.getDate();
+
+            if (days < 0) {
+                months--;
+                let prevMonthLastDay = new Date(toDate.getFullYear(), toDate.getMonth(), 0).getDate();
+                days = prevMonthLastDay + days;
+            }
+            if (months < 0) {
+                years--;
+                months += 12;
+            }
+
+            let hours = toDate.getHours() - fromDate.getHours();
+            let minutes = toDate.getMinutes() - fromDate.getMinutes();
+            let seconds = toDate.getSeconds() - fromDate.getSeconds();
+
+            if (seconds < 0) { seconds += 60; minutes--; }
+            if (minutes < 0) { minutes += 60; hours--; }
+            if (hours < 0) {
+                hours += 24;
+                days--;
+                if (days < 0) {
+                    months--;
+                    if (months < 0) { months += 12; years--; }
+                    let lastMonthDate = new Date(toDate.getFullYear(), toDate.getMonth(), 0);
+                    days = lastMonthDate.getDate() + days;
+                }
+            }
+
+            let weeks = Math.floor(days / 7);
+            let remainderDays = days % 7;
+            
+            return { years, months, weeks, days: remainderDays, hours, minutes, seconds };
+        }
+
+        function formatDurationForPoint(targetDate, isStartPoint = false) {
+            if (isStartPoint) return null;
+            const diff = getDurationComponentsWithoutTime(START_DATE, targetDate);
+            let parts = [];
+            if (diff.years > 0) parts.push(`${diff.years} yr`);
+            if (diff.months > 0) parts.push(`${diff.months} mo`);
+            if (diff.weeks > 0) parts.push(`${diff.weeks} wk`);
+            if (diff.days > 0) parts.push(`${diff.days} d`);
+            if (parts.length === 0) parts.push("0 d");
+            return parts.join(", ");
+        }
+
+        // Build the timeline with rows: each row = (card left or right) + point column + connector line (except after last)
+        function buildTimeline() {
+            const container = document.getElementById('timelineContainer');
+            if (!container) return;
+            container.innerHTML = '';
+
+            // Sort points by date
+            const sorted = [...pointsData].sort((a, b) => a.date - b.date);
+
+            for (let i = 0; i < sorted.length; i++) {
+                const point = sorted[i];
+                // Even index (0,2,4...) -> card on RIGHT, odd index (1,3...) -> card on LEFT
+                const cardOnRight = (i % 2 === 0);
+                
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'timeline-row';
+                
+                // LEFT CARD (if cardOnRight is false, card appears on left)
+                if (!cardOnRight) {
+                    const leftCardDiv = document.createElement('div');
+                    leftCardDiv.className = 'card-left';
+                    leftCardDiv.appendChild(createDetailCard(point, false));
+                    rowDiv.appendChild(leftCardDiv);
+                } else {
+                    // empty spacer to keep alignment
+                    const emptyLeft = document.createElement('div');
+                    emptyLeft.className = 'card-left';
+                    emptyLeft.style.visibility = 'hidden';
+                    rowDiv.appendChild(emptyLeft);
+                }
+                
+                // CENTER POINT COLUMN
+                const pointColumn = document.createElement('div');
+                pointColumn.className = 'point-column';
+                
+                const marker = document.createElement('div');
+                if (point.isStart) {
+                    marker.className = 'vertical-marker start-marker';
+                } else {
+                    marker.className = 'vertical-marker special-glow';
+                }
+                
+                const caption = document.createElement('div');
+                caption.className = 'point-caption';
+                caption.innerText = point.shortLabel || point.label;
+                
+                pointColumn.appendChild(marker);
+                pointColumn.appendChild(caption);
+                rowDiv.appendChild(pointColumn);
+                
+                // RIGHT CARD (if cardOnRight is true)
+                if (cardOnRight) {
+                    const rightCardDiv = document.createElement('div');
+                    rightCardDiv.className = 'card-right';
+                    rightCardDiv.appendChild(createDetailCard(point, true));
+                    rowDiv.appendChild(rightCardDiv);
+                } else {
+                    const emptyRight = document.createElement('div');
+                    emptyRight.className = 'card-right';
+                    emptyRight.style.visibility = 'hidden';
+                    rowDiv.appendChild(emptyRight);
+                }
+                
+                container.appendChild(rowDiv);
+                
+                // Add connector line BETWEEN points (except after the last point)
+                if (i < sorted.length - 1) {
+                    const connectorDiv = document.createElement('div');
+                    connectorDiv.className = 'connector-line';
+                    connectorDiv.style.height = '40px';
+                    connectorDiv.style.margin = '5px auto';
+                    container.appendChild(connectorDiv);
+                }
+            }
+            
+            // adjust connector heights after render for better visual
+            setTimeout(() => adjustConnectorHeights(), 50);
+        }
+        
+        function createDetailCard(point, isRightSide) {
+            const detailCard = document.createElement('div');
+            detailCard.className = 'detail-card';
+            
+            const dayVal = point.date.getDate();
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            const monthName = monthNames[point.date.getMonth()];
+            const yearVal = point.date.getFullYear();
+            const formattedDate = `${dayVal} ${monthName} ${yearVal}`;
+            
+            let statHtml = '';
+            if (point.isStart) {
+                statHtml = `<div class="detail-stats">⭐ First Day ⭐</div>`;
+            } else {
+                const timeFromStart = formatDurationForPoint(point.date, false);
+                statHtml = `<div class="detail-stats">🌸 from 28/11/2024 → this day: ${timeFromStart}</div>`;
+            }
+            
+            detailCard.innerHTML = `
+                <div class="detail-date">
+                    <span>${point.isStart ? '🌟' : '📅'}</span> ${formattedDate}
+                </div>
+                <div class="detail-desc">
+                    ✨ ${point.description} ✨
+                </div>
+                ${statHtml}
+                <div class="detail-heart">
+                    💗 ${point.isStart ? 'where our forever begins' : 'forever point on our timeline'} 💗
+                </div>
+            `;
+            
+            return detailCard;
+        }
+        
+        function adjustConnectorHeights() {
+            const connectors = document.querySelectorAll('.connector-line');
+            const rows = document.querySelectorAll('.timeline-row');
+            
+            for (let i = 0; i < connectors.length; i++) {
+                const connector = connectors[i];
+                const currentRow = rows[i];
+                const nextRow = rows[i + 1];
+                
+                if (currentRow && nextRow) {
+                    const currentRowHeight = currentRow.offsetHeight;
+                    const nextRowHeight = nextRow.offsetHeight;
+                    let connectorHeight = Math.max(30, (currentRowHeight + nextRowHeight) / 3.2);
+                    connectorHeight = Math.min(connectorHeight, 70);
+                    connector.style.height = `${connectorHeight}px`;
+                } else {
+                    connector.style.height = '40px';
+                }
+            }
+        }
+        
+        function updateForeverCounter() {
+            const now = new Date();
+            const diff = getDurationComponentsFull(START_DATE, now);
+            document.getElementById('yearsVal').innerText = diff.years;
+            document.getElementById('monthsVal').innerText = diff.months;
+            document.getElementById('weeksVal').innerText = diff.weeks;
+            document.getElementById('daysVal').innerText = diff.days;
+            document.getElementById('hoursVal').innerText = diff.hours;
+            document.getElementById('minutesVal').innerText = diff.minutes;
+            document.getElementById('secondsVal').innerText = diff.seconds;
+        }
+        
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                buildTimeline();
+            }, 150);
+        });
+        
+        window.addEventListener('load', () => {
+            buildTimeline();
+        });
+        
+        // initial build
+        buildTimeline();
+        updateForeverCounter();
+        setInterval(() => {
+            updateForeverCounter();
+        }, 1000);
+        
+        // occasionally re-adjust connectors
+        setInterval(() => {
+            adjustConnectorHeights();
+        }, 2000);
+    })();
+</script>
+</body>
+</html>
