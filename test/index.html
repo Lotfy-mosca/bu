@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <title>20 images · silk smooth scroll merge</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0a0a0a;
+            overflow-x: hidden;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        #canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #0a0a0a;
+            z-index: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        #canvas img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            will-change: opacity, transform;
+            backface-visibility: hidden;
+            /* smooth transition for opacity & transform – creates buttery feel */
+            transition: opacity 0.08s ease-out, transform 0.08s ease-out;
+        }
+
+        .scroll-space {
+            position: relative;
+            z-index: 1;
+            height: 450vh;          /* extended scroll for even smoother gradation */
+            pointer-events: none;
+        }
+
+        .info {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 999;
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 0.8rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            background: rgba(0, 0, 0, 0.45);
+            padding: 0.4rem 1.2rem;
+            border-radius: 40px;
+            backdrop-filter: blur(6px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            pointer-events: none;
+            font-weight: 300;
+            white-space: nowrap;
+        }
+
+        @media (max-width: 600px) {
+            .info {
+                bottom: 1.2rem;
+                font-size: 0.6rem;
+                padding: 0.3rem 0.9rem;
+            }
+        }
+
+        .loading-tip {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            color: rgba(255, 255, 255, 0.12);
+            font-size: 0.9rem;
+            letter-spacing: 0.2em;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 0.8rem 1.8rem;
+            border-radius: 40px;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            pointer-events: none;
+            transition: opacity 1s ease;
+        }
+        .loading-tip.hidden {
+            opacity: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="canvas"></div>
+    <div class="scroll-space" id="scrollSpace"></div>
+
+    <div class="info">↓ scroll · 20 images flow & overlap</div>
+    <div class="loading-tip" id="loadingTip">loading …</div>
+
+    <script>
+        (function() {
+            const canvas = document.getElementById('canvas');
+            const loadingTip = document.getElementById('loadingTip');
+
+            const TOTAL_IMAGES = 5;
+            const IMAGE_BASE = 'page-';
+            const EXT = '.jpg';
+
+            const images = [];
+
+            // ─── build image elements ───
+            for (let i = 1; i <= TOTAL_IMAGES; i++) {
+                const img = document.createElement('img');
+                img.src = `./${IMAGE_BASE}${i}${EXT}`;
+                img.alt = `layer ${i}`;
+                img.loading = 'lazy';
+                img.dataset.index = i;
+                img.style.opacity = '0';
+                img.style.transform = 'scale(1) translateY(0px)';
+                canvas.appendChild(img);
+                images.push(img);
+            }
+
+            // ─── loading tracker ───
+            let loadedCount = 0;
+            const totalImages = images.length;
+
+            function checkAllLoaded() {
+                loadedCount++;
+                if (loadedCount >= totalImages) {
+                    loadingTip.classList.add('hidden');
+                }
+            }
+
+            images.forEach((img) => {
+                if (img.complete && img.naturalWidth !== 0) {
+                    loadedCount++;
+                } else {
+                    img.addEventListener('load', checkAllLoaded);
+                    img.addEventListener('error', checkAllLoaded);
+                }
+            });
+
+            setTimeout(() => {
+                loadingTip.classList.add('hidden');
+            }, 4000);
+
+            if (loadedCount >= totalImages) {
+                loadingTip.classList.add('hidden');
+            }
+
+            // ─── smooth scroll helpers ───
+            function getScrollProgress() {
+                const scrollTop = window.scrollY || window.pageYOffset || 0;
+                const maxScroll = Math.max(
+                    document.body.scrollHeight,
+                    document.documentElement.scrollHeight,
+                    document.body.offsetHeight,
+                    document.documentElement.offsetHeight
+                ) - window.innerHeight;
+                if (maxScroll <= 0) return 0;
+                return Math.min(1, Math.max(0, scrollTop / maxScroll));
+            }
+
+            // ─── ease in/out function for buttery transitions ───
+            function easeInOutCubic(t) {
+                return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+            }
+
+            // ─── update layers with ultra‑smooth curves ───
+            function updateLayers(progress) {
+                const count = images.length;
+                // wider spread = softer transitions
+                const width = 0.18; // increased from 0.14 → smoother overlap
+
+                images.forEach((img, idx) => {
+                    const peak = idx / (count - 1);
+                    // raw distance
+                    let dist = (progress - peak) / width;
+
+                    // ---- use smoothstep for buttery fade ----
+                    // map dist from [-1, 1] to [0, 1] with smooth hermite curve
+                    let opacity = 0;
+                    const absDist = Math.abs(dist);
+                    if (absDist < 1.0) {
+                        // hermite smoothstep: 3t² - 2t³  (with t = 1 - absDist)
+                        const t = 1 - absDist;
+                        // ease in-out cubic for extra smoothness
+                        const eased = t * t * (3 - 2 * t);
+                        // secondary ease for even more fluidity
+                        opacity = eased;
+                        // add a tiny extra glow at center
+                        if (absDist < 0.3) {
+                            const centerBoost = 1 + 0.08 * (1 - absDist / 0.3);
+                            opacity = Math.min(1, opacity * centerBoost);
+                        }
+                    } else {
+                        opacity = 0;
+                    }
+
+                    // clamp and apply with transition (CSS handles the smoothing)
+                    img.style.opacity = Math.min(1, Math.max(0, opacity));
+
+                    // ---- scale: gentle pulse ----
+                    // base scale from 1.06 (back) → 0.96 (front)
+                    const scaleBase = 1.06 - (idx / (count - 1)) * 0.10;
+                    // dynamic scale based on opacity: images pop slightly when fully visible
+                    const scalePop = 0.025 * opacity * (1 - Math.abs(progress - peak) * 0.5);
+                    let scale = scaleBase + scalePop;
+                    scale = Math.min(1.10, Math.max(0.92, scale));
+
+                    // ---- parallax shift: depth with smooth drift ----
+                    const shiftRange = 20;
+                    const baseShift = (idx / (count - 1) - 0.5) * shiftRange * 0.5;
+                    // slow drift that follows scroll
+                    const drift = (progress - 0.5) * 10;
+                    const totalShift = baseShift + drift * 0.2;
+
+                    // apply transform – CSS transition will smooth it
+                    img.style.transform = `scale(${scale}) translateY(${totalShift}px)`;
+                });
+            }
+
+            // ─── rAF‑driven scroll with extra smoothing ───
+            let ticking = false;
+            let lastProgress = 0;
+
+            function onScroll() {
+                if (!ticking) {
+                    window.requestAnimationFrame(() => {
+                        const rawProgress = getScrollProgress();
+                        // optional: add a tiny lerp for even smoother feel (but CSS transition already does)
+                        // we just apply directly – the CSS transition handles the interpolation
+                        updateLayers(rawProgress);
+                        lastProgress = rawProgress;
+                        ticking = false;
+                    });
+                    ticking = true;
+                }
+            }
+
+            // ─── initial update ───
+            function initialUpdate() {
+                const progress = getScrollProgress();
+                updateLayers(progress);
+                lastProgress = progress;
+            }
+
+            // ─── attach events ───
+            window.addEventListener('scroll', onScroll, { passive: true });
+            window.addEventListener('resize', onScroll, { passive: true });
+
+            // load & ready
+            window.addEventListener('load', () => {
+                initialUpdate();
+                setTimeout(initialUpdate, 200);
+            });
+
+            window.addEventListener('orientationchange', () => {
+                setTimeout(initialUpdate, 400);
+            });
+
+            setTimeout(initialUpdate, 100);
+
+            console.log(`✨ ${TOTAL_IMAGES} images · smooth scroll merge active`);
+        })();
+    </script>
+</body>
+</html>
